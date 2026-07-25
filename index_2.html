@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#2a1b3d" />
+<title>정령이 머무는 언덕 — 1챕터</title>
+<style>
+  :root{
+    --bg-0:#1b1226; --bg-1:#2a1b3d; --panel:rgba(24,14,36,.82);
+    --ink:#f7efe6; --ink-soft:#d8c7bd; --ink-dim:#a794a0;
+    --warm:#ffb877; --warm-deep:#ff8a5c; --ember:#ff6a3d;
+    --gold:#ffd79a; --wind:#8fe0c8; --steel:#9fb6e6; --water:#7fc4e8;
+    --line:rgba(255,255,255,.14);
+    --shadow:0 10px 40px rgba(0,0,0,.45);
+    --r-lg:22px; --r-md:16px; --r-sm:11px;
+    --font: "Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","맑은 고딕",system-ui,sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg-0);}
+  body{font-family:var(--font); color:var(--ink); -webkit-font-smoothing:antialiased; user-select:none;}
+  #app{position:relative; width:100vw; height:100vh; height:100dvh; max-width:520px; margin:0 auto; overflow:hidden;
+    background:var(--bg-1); box-shadow:0 0 60px rgba(0,0,0,.6);}
+  .screen{position:absolute; inset:0; opacity:0; pointer-events:none; transition:opacity .5s var(--ease);}
+  .screen.on{opacity:1; pointer-events:auto;}
+  .hidden{display:none!important;}
+
+  /* ============ 배경 ============ */
+  #bg{position:absolute; inset:0;}
+  .layer{position:absolute; inset:0;}
+  .sky-dusk{background:radial-gradient(120% 80% at 70% 12%, #ffd9a3 0%, #ffab7a 22%, #d9738f 48%, #6c4b86 74%, #2c2350 100%);}
+  .sky-night{background:radial-gradient(120% 90% at 30% 8%, #4a5b93 0%, #37406f 30%, #2a2350 60%, #1a1330 100%);}
+  .sky-dawn{background:radial-gradient(120% 80% at 50% 20%, #cfeede 0%, #a9d9d0 26%, #e7c6a6 55%, #c98fa0 80%, #5b4a78 100%);}
+  .sky-day{background:radial-gradient(120% 90% at 50% 0%, #bfe8e2 0%, #9fd6cf 30%, #d9c9a8 70%, #a08a9c 100%);}
+  .sky-market{background:radial-gradient(120% 80% at 50% 10%, #ffe3ae 0%, #ffc285 30%, #e6907f 62%, #7c5586 100%);}
+  .stars{background-image:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 60% 20%,#fff,transparent),radial-gradient(1.5px 1.5px at 80% 40%,#fff,transparent),radial-gradient(1px 1px at 40% 60%,#fff,transparent),radial-gradient(1px 1px at 85% 65%,#fff,transparent);opacity:.5;}
+  .hill{background:linear-gradient(180deg,transparent 55%, #3a2b46 56%, #241a30 100%);}
+  .hill::after{content:"";position:absolute;left:-5%;right:-5%;bottom:38%;height:22%;
+     background:radial-gradient(60% 100% at 50% 100%, #46324f 0%, transparent 72%);}
+  .stalls{background:
+     linear-gradient(180deg,transparent 58%, #4a3352 59%, #2c1f38 100%);}
+  .stalls::before{content:"";position:absolute;left:6%;bottom:34%;width:34%;height:16%;
+     background:linear-gradient(180deg,#c96a5a 0 30%,#8a4a4a 30% 36%,#5a3a48 36% 100%);border-radius:8px 8px 0 0;opacity:.85;}
+  .stalls::after{content:"";position:absolute;right:6%;bottom:32%;width:38%;height:18%;
+     background:linear-gradient(180deg,#5a8a7a 0 30%,#3f6a62 30% 36%,#4a3a52 36% 100%);border-radius:8px 8px 0 0;opacity:.85;}
+  .haze{background:linear-gradient(180deg,transparent 60%, rgba(255,150,90,.08) 78%, rgba(0,0,0,.35) 100%);}
+  .vignette{box-shadow:inset 0 0 140px 30px rgba(0,0,0,.55); pointer-events:none;}
+  .well{position:absolute; left:50%; bottom:16%; width:150px; height:120px; transform:translateX(-50%); opacity:.9;}
+  .embers{position:absolute; inset:0; overflow:hidden; pointer-events:none;}
+  .ember{position:absolute; width:5px;height:5px;border-radius:50%;
+     background:radial-gradient(circle,#ffd79a,#ff8a5c 60%,transparent 70%);
+     filter:blur(.3px); animation:rise linear infinite; opacity:.85;}
+  @keyframes rise{0%{transform:translateY(0)}10%{opacity:.9}90%{opacity:.7}100%{transform:translateY(-120vh) translateX(30px);opacity:0}}
+
+  /* ============ 캐릭터 ============ */
+  #stage{position:absolute; inset:0;}
+  .char{position:absolute; bottom:20%; width:60%; max-width:320px; transform-origin:50% 100%;
+     opacity:0; transition:opacity .6s var(--ease), transform .6s var(--ease);
+     filter:drop-shadow(0 18px 22px rgba(0,0,0,.4));}
+  .char.show{opacity:1;}
+  .char.left{left:0%; bottom:19%; width:50%;}
+  .char.right{right:0%; left:auto; bottom:19%; width:50%;}
+  .char.center{left:50%; transform:translateX(-50%);}
+  .char.dim{filter:drop-shadow(0 18px 22px rgba(0,0,0,.4)) brightness(.62) saturate(.8);}
+  .breathe .body-rig{animation:breathe 3.8s ease-in-out infinite; transform-origin:50% 100%;}
+  @keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.006)}}
+  .float{animation:floaty 3.2s ease-in-out infinite;}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7%)}}
+  .char.center.float{animation:floatyC 3.2s ease-in-out infinite;}
+  @keyframes floatyC{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-7%)}}
+  .eyelid{transform:scaleY(0); transform-origin:center; transition:transform .09s;}
+  .eyes-shut .eyelid{transform:scaleY(1);}
+  .mouth-open{opacity:0; transition:opacity .08s;}
+  .talking .mouth-open{opacity:1;}
+  .talking .mouth-rest{opacity:0;}
+
+  /* ============ 대사 UI ============ */
+  #vn{position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end;}
+  #tapzone{position:absolute; inset:0;}
+  .namebox{position:relative; align-self:flex-start; margin:0 0 -12px 18px; z-index:3;
+     padding:7px 20px; border-radius:var(--r-md) var(--r-md) 4px var(--r-md);
+     background:linear-gradient(135deg,var(--warm-deep),var(--ember));
+     color:#fff; font-weight:800; font-size:17px; box-shadow:var(--shadow);
+     opacity:0; transform:translateY(6px); transition:.25s var(--ease);}
+  .namebox.on{opacity:1; transform:none;}
+  .namebox[data-c="aria"]{background:linear-gradient(135deg,#4fc39a,#2f9e86);}
+  .namebox[data-c="popo"]{background:linear-gradient(135deg,#ffb04a,#ff7a3d);}
+  .namebox[data-c="pc-her"]{background:linear-gradient(135deg,#b98cd6,#8a5db0);}
+  .namebox[data-c="pc-him"]{background:linear-gradient(135deg,#7fa7e0,#5577c0);}
+  .namebox[data-c="pc-spirit"]{background:linear-gradient(135deg,#ffc26a,#ff8a3d);}
+  .namebox[data-c="kaidel"]{background:linear-gradient(135deg,#8fa8dd,#5f6fb8);}
+  .namebox[data-c="viola"]{background:linear-gradient(135deg,#8fd0ea,#4a86b8);}
+  .namebox[data-c="etc"]{background:linear-gradient(135deg,#8a7a92,#635a72);}
+  .dialogue{position:relative; z-index:2; padding:26px 22px calc(30px + env(safe-area-inset-bottom));
+     background:var(--panel); backdrop-filter:blur(10px);
+     border-top:1px solid var(--line); border-radius:var(--r-lg) var(--r-lg) 0 0;
+     box-shadow:0 -14px 40px rgba(0,0,0,.35); min-height:34%;}
+  .dialogue.narration{color:var(--ink-soft);}
+  .dialogue.think{color:#cdbce6; font-style:italic;}
+  #text{font-size:19px; line-height:1.7; min-height:3.4em; white-space:pre-wrap;}
+  .think #text::before{content:"‘";} .think #text::after{content:"’";}
+  #next-ind{position:absolute; right:20px; bottom:calc(16px + env(safe-area-inset-bottom));
+     width:12px;height:12px;border-right:2px solid var(--warm);border-bottom:2px solid var(--warm);
+     transform:rotate(45deg); animation:bob 1s infinite; opacity:.9;}
+  @keyframes bob{0%,100%{transform:rotate(45deg)}50%{transform:rotate(45deg) translate(3px,3px)}}
+
+  #choices{position:absolute; inset:0; z-index:5; display:none; flex-direction:column;
+     align-items:center; justify-content:center; gap:14px; padding:24px;
+     background:radial-gradient(120% 80% at 50% 40%,rgba(20,12,30,.35),rgba(12,7,20,.72));}
+  #choices.on{display:flex;}
+  .choice{width:100%; max-width:400px; padding:17px 20px; font-family:var(--font);
+     font-size:17px; font-weight:600; color:var(--ink); cursor:pointer;
+     background:linear-gradient(135deg,rgba(255,184,119,.16),rgba(255,138,92,.10));
+     border:1px solid rgba(255,184,119,.5); border-radius:var(--r-md);
+     box-shadow:var(--shadow); transition:.18s var(--ease); text-align:left;}
+  .choice:active{transform:scale(.97);}
+
+  #hud{position:absolute; top:0; left:0; right:0; z-index:6; display:flex; align-items:center;
+     gap:8px; padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+     background:linear-gradient(180deg,rgba(12,7,20,.55),transparent);}
+  .hud-title{font-size:12.5px; color:var(--ink-dim); font-weight:700; margin-right:auto;}
+  .hbtn{appearance:none; border:1px solid var(--line); background:rgba(255,255,255,.06);
+     color:var(--ink-soft); font-family:var(--font); font-size:12.5px; font-weight:700;
+     padding:7px 11px; border-radius:20px; cursor:pointer; transition:.15s;}
+  .hbtn:active{transform:scale(.94);} .hbtn.active{color:#1b1226;background:var(--warm);border-color:var(--warm);}
+
+  #bonds{position:absolute; z-index:6; top:calc(46px + env(safe-area-inset-top)); left:14px; display:flex; gap:6px; flex-wrap:wrap; max-width:80%;}
+  .bond{display:flex; align-items:center; gap:6px; background:rgba(12,7,20,.5);
+     padding:5px 10px 5px 6px; border-radius:20px; border:1px solid var(--line); opacity:0; transform:translateX(-8px); transition:.35s var(--ease);}
+  .bond.on{opacity:1; transform:none;}
+  .bond .dot{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;}
+  .bond .meter{width:46px;height:6px;border-radius:6px;background:rgba(255,255,255,.14);overflow:hidden;}
+  .bond .fill{height:100%;width:0;border-radius:6px;transition:width .5s var(--ease);}
+  .bond .lbl{font-size:11px;color:var(--ink-soft);font-weight:700;}
+
+  #toast{position:absolute; z-index:9; top:50%; left:50%; transform:translate(-50%,-50%) scale(.9);
+     background:linear-gradient(135deg,var(--warm-deep),var(--ember)); color:#fff; font-weight:800;
+     padding:12px 22px; border-radius:30px; box-shadow:var(--shadow); opacity:0; pointer-events:none;
+     transition:.3s var(--ease); font-size:15px; text-align:center;}
+  #toast.on{opacity:1; transform:translate(-50%,-50%) scale(1);}
+
+  /* ============ 오버레이 ============ */
+  .overlay{position:absolute; inset:0; z-index:20; background:rgba(10,6,16,.9); backdrop-filter:blur(6px);
+     display:none; flex-direction:column; padding:calc(16px + env(safe-area-inset-top)) 16px 16px;}
+  .overlay.on{display:flex;}
+  .ov-head{display:flex; align-items:center; margin-bottom:12px;}
+  .ov-head h2{margin:0; font-size:18px; margin-right:auto; color:var(--gold);}
+  .ov-body{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+  .log-line{padding:10px 4px; border-bottom:1px solid rgba(255,255,255,.07); font-size:15px; line-height:1.55;}
+  .log-line .who{color:var(--warm); font-weight:800; margin-right:6px;}
+  .log-line.narr{color:var(--ink-dim); font-style:italic;}
+  .set-row{display:flex; align-items:center; gap:10px; padding:16px 4px; border-bottom:1px solid rgba(255,255,255,.07);}
+  .set-row label{font-size:15px; margin-right:auto; color:var(--ink-soft); font-weight:600;}
+  .seg{display:flex; gap:6px;} .seg button{padding:8px 13px; border-radius:10px; border:1px solid var(--line);
+     background:rgba(255,255,255,.05); color:var(--ink-soft); font-family:var(--font); font-weight:700; cursor:pointer;}
+  .seg button.on{background:var(--warm); color:#1b1226; border-color:var(--warm);}
+  .slot{display:flex; align-items:center; gap:12px; padding:14px; margin-bottom:10px; border-radius:var(--r-md);
+     background:rgba(255,255,255,.05); border:1px solid var(--line); cursor:pointer;}
+  .slot:active{background:rgba(255,255,255,.1);} .slot .s-i{font-weight:800;color:var(--gold);}
+  .slot .s-d{font-size:13px;color:var(--ink-dim);margin-left:auto;}
+
+  /* ============ 타이틀/선택 ============ */
+  #title.screen{display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px;}
+  #title .sky-dusk{position:absolute;inset:0;z-index:0;}
+  #title .t-inner{position:relative; z-index:2;}
+  .t-eyebrow{color:var(--gold); letter-spacing:.35em; font-size:12px; font-weight:700; margin-bottom:14px;}
+  .t-title{font-size:40px; font-weight:900; line-height:1.15; margin:0;
+     text-shadow:0 4px 24px rgba(0,0,0,.5); background:linear-gradient(180deg,#fff,#ffddb0);
+     -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .t-sub{color:var(--ink-soft); margin-top:14px; font-size:14px;}
+  .t-tag{color:var(--ink-dim); margin-top:6px; font-size:11.5px;}
+  .t-menu{position:relative;z-index:2;margin-top:40px; display:flex; flex-direction:column; gap:12px; width:min(78%,300px);}
+  .t-btn{padding:15px; border-radius:var(--r-md); font-family:var(--font); font-size:17px; font-weight:800;
+     cursor:pointer; border:1px solid rgba(255,215,154,.55); color:#2a1b12;
+     background:linear-gradient(135deg,var(--gold),var(--warm)); box-shadow:var(--shadow); transition:.16s var(--ease);}
+  .t-btn.ghost{background:rgba(255,255,255,.06); color:var(--ink); border-color:var(--line);}
+  .t-btn:active{transform:scale(.97);}
+  .title-spirit{position:absolute; z-index:1; width:70px; height:70px; top:24%; right:16%;}
+
+  #select.screen{display:flex; flex-direction:column; padding:calc(24px + env(safe-area-inset-top)) 20px 24px;}
+  #select .sky-night,#select .stars{position:absolute;inset:0;z-index:0;}
+  .sel-inner{position:relative;z-index:2;display:flex;flex-direction:column;height:100%;}
+  .sel-head{text-align:center;margin:8px 0 18px;}
+  .sel-head h2{margin:0;font-size:22px;color:var(--gold);}
+  .sel-head p{margin:6px 0 0;color:var(--ink-dim);font-size:13px;}
+  .sel-cards{display:flex;flex-direction:column;gap:12px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
+  .pcard{display:flex;align-items:center;gap:14px;text-align:left;padding:16px;border-radius:var(--r-lg);
+     background:rgba(255,255,255,.06);border:1px solid var(--line);cursor:pointer;
+     font-family:var(--font);color:var(--ink);transition:.18s var(--ease);}
+  .pcard:active{transform:scale(.98);}
+  .pcard.sel{border-color:var(--gold);background:linear-gradient(135deg,rgba(255,215,154,.18),rgba(255,138,92,.10));}
+  .pcard .ic{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:26px;flex:none;
+     background:rgba(0,0,0,.3);border:1px solid var(--line);}
+  .pcard b{font-size:16.5px;display:block;}
+  .pcard span{font-size:12.5px;color:var(--ink-dim);display:block;margin-top:3px;line-height:1.5;}
+  .sub-pick{display:none;flex-direction:column;gap:10px;padding:4px 0 2px 12px;border-left:2px solid rgba(255,215,154,.4);margin:2px 0 2px 24px;}
+  .sub-pick.on{display:flex;}
+  .sub-pick .pcard{padding:12px;}
+  .sub-pick .pcard .ic{width:42px;height:42px;font-size:20px;}
+
+  /* ============ SD 전투 ============ */
+  #battle{position:absolute; inset:0; z-index:15; display:none; flex-direction:column;
+     background:radial-gradient(130% 100% at 50% 0%, #3d2a5e 0%, #2a1c44 42%, #180f2c 100%);}
+  #battle.on{display:flex;}
+  .b-head{text-align:center; padding:calc(14px + env(safe-area-inset-top)) 16px 4px;}
+  .b-head .b-title{color:var(--gold); font-weight:900; font-size:16px; letter-spacing:.06em;}
+  .b-head .b-sub{color:var(--ink-dim); font-size:11.5px; margin-top:3px;}
+  .b-field{flex:1; position:relative; overflow:hidden;}
+  .b-stars{position:absolute;inset:0;}
+  .b-unit{position:absolute; display:flex; flex-direction:column; align-items:center; gap:6px;
+     transition:transform .22s var(--ease), opacity .5s;}
+  .b-unit .sd{width:100%;}
+  #b-enemy{top:6%; right:10%; width:42%;}
+  #b-player{bottom:5%; left:8%; width:36%;}
+  .hpwrap{width:100%; max-width:150px;}
+  .hpname{display:flex;justify-content:space-between;font-size:11.5px;font-weight:800;color:var(--ink-soft);margin-bottom:3px;}
+  .hpbar{height:9px; border-radius:8px; background:rgba(255,255,255,.14); overflow:hidden; border:1px solid rgba(255,255,255,.15);}
+  .hpbar i{display:block;height:100%;border-radius:8px;transition:width .35s var(--ease);}
+  .hp-p i{background:linear-gradient(90deg,#ffd79a,#ff8a5c);}
+  .hp-e i{background:linear-gradient(90deg,#b48ae0,#7a4ec2);}
+  .b-log{min-height:42px; text-align:center; color:var(--ink); font-size:14.5px; font-weight:700;
+     padding:6px 18px; display:flex; align-items:center; justify-content:center;}
+  .b-actions{display:flex; gap:10px; padding:10px 14px calc(16px + env(safe-area-inset-bottom));}
+  .b-act{flex:1; padding:13px 6px; border-radius:var(--r-md); border:1px solid rgba(255,184,119,.5);
+     background:linear-gradient(135deg,rgba(255,184,119,.16),rgba(255,138,92,.10));
+     color:var(--ink); font-family:var(--font); font-weight:800; font-size:14px; cursor:pointer; transition:.15s;
+     display:flex; flex-direction:column; align-items:center; gap:3px;}
+  .b-act small{font-size:10.5px; color:var(--ink-dim); font-weight:700;}
+  .b-act:active{transform:scale(.96);}
+  .b-act:disabled{opacity:.4; pointer-events:none;}
+  .b-act.ult{border-color:rgba(255,120,200,.6); background:linear-gradient(135deg,rgba(255,130,200,.2),rgba(180,90,220,.14));}
+  .pips{display:flex;gap:4px;justify-content:center;}
+  .pip{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);}
+  .pip.on{background:#ff9bd0;box-shadow:0 0 6px #ff9bd0;}
+  .lunge-p{animation:lungeP .34s var(--ease);}
+  @keyframes lungeP{0%{transform:translate(0,0)}45%{transform:translate(26px,-20px)}100%{transform:translate(0,0)}}
+  .lunge-e{animation:lungeE .34s var(--ease);}
+  @keyframes lungeE{0%{transform:translate(0,0)}45%{transform:translate(-26px,22px)}100%{transform:translate(0,0)}}
+  .shake{animation:shake .3s;}
+  @keyframes shake{0%,100%{transform:translate(0)}25%{transform:translate(-7px,2px)}50%{transform:translate(6px,-2px)}75%{transform:translate(-4px,1px)}}
+  .fade-out{opacity:0!important; transform:scale(.7) rotate(6deg);}
+  .b-spark{position:absolute; width:10px; height:10px; border-radius:50%; pointer-events:none;
+     background:radial-gradient(circle,#fff,#ffd79a 40%,transparent 70%); animation:spark .55s ease-out forwards;}
+  @keyframes spark{0%{opacity:1; transform:scale(.6)}100%{opacity:0; transform:scale(2.2) translate(var(--dx),var(--dy))}}
+
+  /* ============ 엔딩 ============ */
+  #ending.screen{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;}
+  #ending .sky-dawn{position:absolute;inset:0;z-index:0}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 타이틀 -->
+  <section id="title" class="screen on">
+    <div class="sky-dusk"></div>
+    <div class="layer hill"></div>
+    <div class="layer haze"></div>
+    <div class="embers" id="title-embers"></div>
+    <div class="title-spirit float" id="title-spirit"></div>
+    <div class="t-inner">
+      <div class="t-eyebrow">A R V E I N</div>
+      <h1 class="t-title">정령이 머무는<br>언덕</h1>
+      <div class="t-sub">— 어느 날, 나는 정령을 주웠다 —</div>
+      <div class="t-tag">3챕터 · 영구 저장 · v0.5</div>
+    </div>
+    <div class="t-menu">
+      <button class="t-btn" onclick="Game.openSelect()">새로 시작</button>
+      <button class="t-btn ghost" onclick="Game.openLoad()">이어하기</button>
+      <button class="t-btn ghost" onclick="Novel.openShelf()">📚 소설 보관함</button>
+    </div>
+    <div class="layer vignette"></div>
+  </section>
+
+  <!-- 주인공 선택 -->
+  <section id="select" class="screen">
+    <div class="sky-night"></div><div class="stars"></div>
+    <div class="sel-inner">
+      <div class="sel-head">
+        <h2>누구의 이야기로 시작할까요?</h2>
+        <p>시점에 따라 프롤로그와 1챕터가 달라집니다</p>
+      </div>
+      <div class="sel-cards">
+        <button class="pcard" onclick="Game.begin('her')">
+          <span class="ic">🌙</span>
+          <span><b>레이나 — 여주인공</b>
+          <span>빈손의 정령사. 조용히 먹고살고 싶은데, 부당한 건 못 지나쳐서 자꾸 정의구현을 하게 된다.</span></span>
+        </button>
+        <button class="pcard" onclick="Game.begin('him')">
+          <span class="ic">⚔️</span>
+          <span><b>리안 — 남주인공</b>
+          <span>빈손의 정령사. 무심한 얼굴로 폐허에 왔지만, 결국 온기를 못 이기는 타입.</span></span>
+        </button>
+        <button class="pcard" id="card-spirit" onclick="Game.pickSpirit()">
+          <span class="ic">🔥</span>
+          <span><b>엠버 — 케어 정령</b>
+          <span>언덕을 지켜온 이름 없는 불씨 정령. 어느 날 말썽쟁이 인간을 "줍게" 된다. 누구를 돌볼까?</span></span>
+        </button>
+        <div class="sub-pick" id="spirit-sub">
+          <button class="pcard" onclick="Game.begin('spirit','kaidel')">
+            <span class="ic">⚡</span>
+            <span><b>말썽쟁이 카이델 (남)</b>
+            <span>싸움에 휘말려 쫓겨 다니는 전직 기사. 사고뭉치인데 이상하게 남 일에 몸을 던진다.</span></span>
+          </button>
+          <button class="pcard" onclick="Game.begin('spirit','aria')">
+            <span class="ic">🍃</span>
+            <span><b>말썽쟁이 아리아 (여)</b>
+            <span>소환 사고로 마을에서 쫓겨난 견습 정령사. 씩씩한 웃음 뒤에 갈 곳이 없다.</span></span>
+          </button>
+        </div>
+        <button class="t-btn ghost" style="margin-top:6px" onclick="Game.show('title')">← 타이틀로</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 게임 -->
+  <section id="game" class="screen">
+    <div id="bg"></div>
+    <div class="embers hidden" id="game-embers"></div>
+    <div id="stage"></div>
+    <div id="hud">
+      <span class="hud-title">정령이 머무는 언덕</span>
+      <button class="hbtn" id="btn-auto" onclick="Game.toggleAuto()">AUTO</button>
+      <button class="hbtn" id="btn-skip" onclick="Game.toggleSkip()">SKIP</button>
+      <button class="hbtn" onclick="Game.openLog()">LOG</button>
+      <button class="hbtn" onclick="Game.openMenu()">☰</button>
+    </div>
+    <div id="bonds"></div>
+    <div id="vn">
+      <div id="tapzone"></div>
+      <div class="namebox" id="namebox"></div>
+      <div class="dialogue" id="dialogue">
+        <div id="text"></div>
+        <div id="next-ind"></div>
+      </div>
+    </div>
+    <div id="choices"></div>
+    <div id="toast"></div>
+  </section>
+
+  <!-- SD 전투 -->
+  <section id="battle">
+    <div class="b-head">
+      <div class="b-title" id="b-title">정화전 — 그을음</div>
+      <div class="b-sub">정령 고갈이 남긴 오염체를 정화하자</div>
+    </div>
+    <div class="b-field">
+      <div class="b-stars stars"></div>
+      <div class="b-unit" id="b-enemy">
+        <div class="hpwrap"><div class="hpname"><span id="b-ename">그을음</span><span id="b-ehp-t"></span></div>
+        <div class="hpbar hp-e"><i id="b-ehp"></i></div></div>
+        <div class="sd" id="b-esprite"></div>
+      </div>
+      <div class="b-unit" id="b-player">
+        <div class="sd" id="b-psprite"></div>
+        <div class="hpwrap"><div class="hpname"><span id="b-pname">포포</span><span id="b-php-t"></span></div>
+        <div class="hpbar hp-p"><i id="b-php"></i></div></div>
+      </div>
+    </div>
+    <div class="b-log" id="b-log">오염체가 나타났다!</div>
+    <div class="b-actions">
+      <button class="b-act" id="act-atk"><span id="atk-name">불티 던지기</span><small>공격</small></button>
+      <button class="b-act" id="act-heal"><span id="heal-name">따뜻한 숨결</span><small>회복</small></button>
+      <button class="b-act ult" id="act-ult"><span id="ult-name">불꽃 만개</span><div class="pips" id="ult-pips"><span class="pip"></span><span class="pip"></span><span class="pip"></span></div></button>
+    </div>
+  </section>
+
+  <!-- 엔딩 -->
+  <section id="ending" class="screen">
+    <div class="sky-dawn"></div>
+    <div class="layer stars"></div>
+    <div class="embers" id="end-embers"></div>
+    <div style="position:relative;z-index:2;background:rgba(18,11,26,.55);padding:28px 24px;border-radius:var(--r-lg);border:1px solid var(--line);backdrop-filter:blur(6px);max-width:400px;">
+      <h2 style="margin:0 0 6px;font-size:26px;color:var(--gold)" id="end-title">1챕터 · 끝</h2>
+      <p id="end-text" style="color:var(--ink-soft);line-height:1.7;font-size:15px"></p>
+      <div id="end-stats" style="margin:16px 0;display:flex;flex-direction:column;gap:8px;text-align:left"></div>
+      <button class="t-btn" style="margin-bottom:10px" onclick="Novel.openLatest()">📖 이번 플레이를 소설로 보기</button>
+      <button class="t-btn ghost" onclick="location.reload()">처음으로</button>
+      <div class="t-tag" style="margin-top:14px">다음 업데이트: 4챕터 · 정식 아트 · 진엔딩</div>
+    </div>
+  </section>
+
+  <!-- 오버레이 -->
+  <div class="overlay" id="ov-log">
+    <div class="ov-head"><h2>지난 이야기</h2><button class="hbtn" onclick="Game.closeOverlays()">닫기</button></div>
+    <div class="ov-body" id="log-body"></div>
+  </div>
+  <div class="overlay" id="ov-menu">
+    <div class="ov-head"><h2>메뉴</h2><button class="hbtn" onclick="Game.closeOverlays()">닫기</button></div>
+    <div class="ov-body">
+      <div class="set-row"><label>텍스트 속도</label>
+        <div class="seg" id="seg-speed">
+          <button onclick="Game.setSpeed(55,this)">느리게</button>
+          <button class="on" onclick="Game.setSpeed(28,this)">보통</button>
+          <button onclick="Game.setSpeed(10,this)">빠르게</button>
+        </div></div>
+      <div class="set-row"><label>자동 진행 대기</label>
+        <div class="seg" id="seg-auto">
+          <button class="on" onclick="Game.setAutoWait(2600,this)">짧게</button>
+          <button onclick="Game.setAutoWait(4200,this)">길게</button>
+        </div></div>
+      <div style="margin-top:18px">
+        <div class="slot" onclick="Game.saveTo(1)"><span class="s-i">저장하기</span><span class="s-d">현재 지점 저장(세션)</span></div>
+        <div class="slot" onclick="Game.openLoad()"><span class="s-i">불러오기</span><span class="s-d">저장 슬롯 열기</span></div>
+        <div class="slot" onclick="location.reload()"><span class="s-i">타이틀로</span><span class="s-d">처음 화면으로</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="ov-save">
+    <div class="ov-head"><h2>저장 슬롯</h2><button class="hbtn" onclick="Game.closeOverlays()">닫기</button></div>
+    <div class="ov-body" id="save-body"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="t-btn" style="flex:1;padding:12px;font-size:14px" onclick="Game.exportSave()">💾 파일로 내보내기</button>
+      <button class="t-btn ghost" style="flex:1;padding:12px;font-size:14px" onclick="document.getElementById('save-import').click()">📁 파일에서 불러오기</button>
+      <input id="save-import" type="file" accept=".txt,.json,text/plain,application/json" style="display:none" onchange="Game.importSave(this.files[0])">
+    </div>
+    <p class="t-tag" style="text-align:center;margin-top:12px">※ 이 기기에 영구 저장됩니다. 다른 기기·다른 주소로 옮기려면 위의 「파일로 내보내기」로 백업하세요.</p>
+  </div>
+
+  <!-- 오버레이: 자유 대사 입력 -->
+  <div class="overlay" id="ov-input" style="justify-content:center;">
+    <div style="background:rgba(24,14,36,.95);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow);">
+      <h2 id="input-prompt" style="margin:0 0 6px;font-size:18px;color:var(--gold);line-height:1.5"></h2>
+      <p class="t-tag" style="margin:0 0 14px">평소 말투로 편하게 적어도 돼요. <b style="color:var(--warm)">세계관의 결에 맞게 자동으로 다듬어집니다.</b></p>
+      <textarea id="free-text" maxlength="80" rows="3" placeholder='예) "고마워! 우리 같이 잘 살아보자 ㅎㅎ"'
+        style="width:100%;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:var(--r-md);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.6;padding:12px;resize:none;outline:none"></textarea>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="t-btn" style="flex:1" onclick="Game.submitInput()">말하기</button>
+        <button class="t-btn ghost" onclick="Game.submitInput(true)">…말없이 고개만 끄덕인다</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 오버레이: 소설 뷰어 -->
+  <div class="overlay" id="ov-novel">
+    <div class="ov-head"><h2 id="novel-title">소설</h2><button class="hbtn" onclick="Novel.copy()">복사</button><button class="hbtn" style="margin-left:6px" onclick="Novel.download()">TXT 저장</button><button class="hbtn" style="margin-left:6px" onclick="Game.closeOverlays()">닫기</button></div>
+    <div class="ov-body">
+      <pre id="novel-body" style="white-space:pre-wrap;font-family:var(--font);font-size:15px;line-height:1.85;color:var(--ink-soft);margin:0;padding:4px 2px 30px;"></pre>
+    </div>
+    <p class="t-tag" style="text-align:center">연재 플랫폼(카카오페이지·조아라 등) 원고 형식 — 복사해서 바로 붙여넣을 수 있어요.</p>
+  </div>
+
+  <!-- 오버레이: 소설 보관함 -->
+  <div class="overlay" id="ov-shelf">
+    <div class="ov-head"><h2>📚 소설 보관함</h2><button class="hbtn" onclick="Game.closeOverlays()">닫기</button></div>
+    <div class="ov-body" id="shelf-body"></div>
+    <p class="t-tag" style="text-align:center">플레이를 끝낼 때마다 회차가 자동 집필됩니다. TXT로 저장해두세요(데모는 세션 보관).</p>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   정령이 머무는 언덕 v0.3
+   - 3시점(여주/남주/케어 정령) × 프롤로그+1챕터
+   - SD 정령 전투(턴제 정화전) 통합
+   ============================================================ */
+
+/* ---------- 스프라이트 ---------- */
+const SPRITES = {
+  popo: (cls="") => `
+    <svg class="char-svg ${cls}" viewBox="0 0 200 220" width="100%"><g class="body-rig">
+      <defs><radialGradient id="pf${cls}" cx="50%" cy="42%" r="65%">
+        <stop offset="0%" stop-color="#fff2cf"/><stop offset="42%" stop-color="#ffcf7a"/>
+        <stop offset="78%" stop-color="#ff9245"/><stop offset="100%" stop-color="#ff6a3d"/></radialGradient></defs>
+      <ellipse cx="100" cy="200" rx="46" ry="10" fill="rgba(255,140,80,.28)"/>
+      <path d="M100 30 C60 70 55 120 70 150 C82 176 118 176 130 150 C145 120 140 70 100 30Z" fill="url(#pf${cls})"/>
+      <path d="M100 70 C82 92 80 118 90 136 C97 150 103 150 110 136 C120 118 118 92 100 70Z" fill="#fff3d0" opacity=".85"/>
+      <g class="eyes"><ellipse cx="86" cy="120" rx="6" ry="8" fill="#5a2a12"/><ellipse cx="114" cy="120" rx="6" ry="8" fill="#5a2a12"/>
+        <rect class="eyelid" x="79" y="112" width="14" height="18" rx="6" fill="url(#pf${cls})"/>
+        <rect class="eyelid" x="107" y="112" width="14" height="18" rx="6" fill="url(#pf${cls})"/></g>
+      <circle cx="76" cy="132" r="5" fill="#ff7a6a" opacity=".55"/><circle cx="124" cy="132" r="5" fill="#ff7a6a" opacity=".55"/>
+      <path class="mouth-rest" d="M92 138 Q100 144 108 138" stroke="#7a3a1a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <ellipse class="mouth-open" cx="100" cy="140" rx="6" ry="5" fill="#7a3a1a"/></g>
+    </svg>`,
+  ember: (cls="") => `
+    <svg class="char-svg ${cls}" viewBox="0 0 200 220" width="100%"><g class="body-rig">
+      <defs><radialGradient id="ef${cls}" cx="50%" cy="42%" r="65%">
+        <stop offset="0%" stop-color="#fff6da"/><stop offset="40%" stop-color="#ffdf9a"/>
+        <stop offset="76%" stop-color="#ffa845"/><stop offset="100%" stop-color="#ff7a3d"/></radialGradient></defs>
+      <ellipse cx="100" cy="200" rx="46" ry="10" fill="rgba(255,170,90,.3)"/>
+      <path d="M100 22 C58 66 50 122 68 152 C82 178 118 178 132 152 C150 122 142 66 100 22Z" fill="url(#ef${cls})"/>
+      <path d="M100 24 C88 44 92 58 100 66 C108 58 112 44 100 24Z" fill="#fff6da"/>
+      <path d="M100 66 C80 90 78 118 88 138 C96 152 104 152 112 138 C122 118 120 90 100 66Z" fill="#fff3d0" opacity=".9"/>
+      <g class="eyes"><ellipse cx="85" cy="118" rx="6.5" ry="9" fill="#6a3212"/><ellipse cx="115" cy="118" rx="6.5" ry="9" fill="#6a3212"/>
+        <circle cx="83" cy="114" r="2" fill="#fff"/><circle cx="113" cy="114" r="2" fill="#fff"/>
+        <rect class="eyelid" x="77" y="109" width="16" height="19" rx="7" fill="url(#ef${cls})"/>
+        <rect class="eyelid" x="107" y="109" width="16" height="19" rx="7" fill="url(#ef${cls})"/></g>
+      <circle cx="74" cy="131" r="5" fill="#ff8a6a" opacity=".6"/><circle cx="126" cy="131" r="5" fill="#ff8a6a" opacity=".6"/>
+      <path class="mouth-rest" d="M92 137 Q100 143 108 137" stroke="#8a3a1a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <ellipse class="mouth-open" cx="100" cy="139" rx="6" ry="5" fill="#8a3a1a"/></g>
+    </svg>`,
+  smog: (cls="") => `
+    <svg class="char-svg ${cls}" viewBox="0 0 220 200" width="100%"><g class="body-rig">
+      <defs><radialGradient id="sm${cls}" cx="50%" cy="40%" r="70%">
+        <stop offset="0%" stop-color="#6a5a8a"/><stop offset="55%" stop-color="#4a3a68"/><stop offset="100%" stop-color="#2c2044"/></radialGradient></defs>
+      <ellipse cx="110" cy="184" rx="62" ry="12" fill="rgba(40,20,60,.5)"/>
+      <path d="M110 26 C66 30 40 70 44 112 C30 118 30 140 48 144 C46 168 76 182 110 180 C144 182 174 168 172 144 C190 140 190 118 176 112 C180 70 154 30 110 26Z" fill="url(#sm${cls})"/>
+      <path d="M60 60 C50 44 58 30 70 26 C64 40 68 52 76 58Z" fill="#4a3a68"/>
+      <path d="M160 60 C170 44 162 30 150 26 C156 40 152 52 144 58Z" fill="#4a3a68"/>
+      <g class="eyes"><ellipse cx="88" cy="102" rx="10" ry="13" fill="#c9a2ff"/><ellipse cx="132" cy="102" rx="10" ry="13" fill="#c9a2ff"/>
+        <circle cx="88" cy="104" r="4.5" fill="#2c1444"/><circle cx="132" cy="104" r="4.5" fill="#2c1444"/>
+        <rect class="eyelid" x="76" y="90" width="24" height="24" rx="10" fill="url(#sm${cls})"/>
+        <rect class="eyelid" x="120" y="90" width="24" height="24" rx="10" fill="url(#sm${cls})"/></g>
+      <path class="mouth-rest" d="M100 132 Q110 126 120 132" stroke="#1c1030" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <ellipse class="mouth-open" cx="110" cy="132" rx="8" ry="6" fill="#1c1030"/>
+      <path d="M70 150 Q74 162 68 172 M150 150 Q146 162 152 172" stroke="#3a2c58" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    </svg>`,
+  aria: (cls="") => `
+    <svg class="char-svg ${cls}" viewBox="0 0 260 460" width="100%"><g class="body-rig">
+      <defs>
+        <linearGradient id="a-hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe6a3"/><stop offset="1" stop-color="#f6c85c"/></linearGradient>
+        <linearGradient id="a-cloak" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe0c4"/><stop offset="1" stop-color="#3fae93"/></linearGradient>
+        <linearGradient id="a-skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9dc"/><stop offset="1" stop-color="#ffd8c4"/></linearGradient>
+      </defs>
+      <path d="M60 460 C50 350 70 280 130 262 C190 280 210 350 200 460Z" fill="url(#a-cloak)"/>
+      <path d="M130 262 L118 330 L142 330Z" fill="#ffffff" opacity=".5"/>
+      <rect x="112" y="238" width="36" height="42" rx="16" fill="url(#a-skin)"/>
+      <path d="M70 150 C60 250 92 300 130 300 C168 300 200 250 190 150Z" fill="url(#a-hair)"/>
+      <ellipse cx="130" cy="168" rx="62" ry="66" fill="url(#a-skin)"/>
+      <path d="M70 150 C74 104 100 78 130 78 C160 78 186 104 190 150 C176 132 150 150 130 150 C110 150 84 132 70 150Z" fill="url(#a-hair)"/>
+      <path d="M70 150 C68 176 74 196 82 208 C78 176 82 158 92 150Z" fill="url(#a-hair)"/>
+      <path d="M190 150 C192 176 186 196 178 208 C182 176 178 158 168 150Z" fill="url(#a-hair)"/>
+      <ellipse cx="96" cy="188" rx="11" ry="7" fill="#ffb3a0" opacity=".6"/><ellipse cx="164" cy="188" rx="11" ry="7" fill="#ffb3a0" opacity=".6"/>
+      <g class="eyes">
+        <ellipse cx="104" cy="172" rx="11" ry="14" fill="#fff"/><ellipse cx="156" cy="172" rx="11" ry="14" fill="#fff"/>
+        <circle cx="105" cy="174" r="8" fill="#2f8f78"/><circle cx="157" cy="174" r="8" fill="#2f8f78"/>
+        <circle cx="102" cy="170" r="2.6" fill="#fff"/><circle cx="154" cy="170" r="2.6" fill="#fff"/>
+        <rect class="eyelid" x="92" y="158" width="24" height="16" rx="8" fill="url(#a-skin)"/>
+        <rect class="eyelid" x="144" y="158" width="24" height="16" rx="8" fill="url(#a-skin)"/>
+      </g>
+      <path d="M92 156 Q104 150 116 156" stroke="#c99a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M144 156 Q156 150 168 156" stroke="#c99a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path class="mouth-rest" d="M120 202 Q130 210 140 202" stroke="#d06a5a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path class="mouth-open" d="M120 200 Q130 216 140 200 Q130 208 120 200Z" fill="#c65a4a"/></g>
+    </svg>`,
+  kaidel: (cls="") => `
+    <svg class="char-svg ${cls}" viewBox="0 0 260 460" width="100%"><g class="body-rig">
+      <defs>
+        <linearGradient id="k-hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a6a8f"/><stop offset="1" stop-color="#39435f"/></linearGradient>
+        <linearGradient id="k-coat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a557c"/><stop offset="1" stop-color="#2c3350"/></linearGradient>
+        <linearGradient id="k-skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe4cf"/><stop offset="1" stop-color="#f3ccae"/></linearGradient>
+      </defs>
+      <path d="M56 460 C48 344 72 276 130 258 C188 276 212 344 204 460Z" fill="url(#k-coat)"/>
+      <path d="M130 258 L112 340 L130 322 L148 340Z" fill="#8fa8dd" opacity=".7"/>
+      <rect x="113" y="234" width="34" height="40" rx="15" fill="url(#k-skin)"/>
+      <path d="M76 142 C66 220 96 268 130 268 C164 268 194 220 184 142Z" fill="url(#k-hair)"/>
+      <ellipse cx="130" cy="164" rx="60" ry="64" fill="url(#k-skin)"/>
+      <path d="M72 148 C76 100 102 74 130 74 C158 74 184 100 188 148 C170 124 158 140 130 138 C102 140 90 124 72 148Z" fill="url(#k-hair)"/>
+      <path d="M100 116 L112 96 L118 118Z" fill="url(#k-hair)"/>
+      <g class="eyes">
+        <ellipse cx="106" cy="168" rx="10" ry="12" fill="#fff"/><ellipse cx="154" cy="168" rx="10" ry="12" fill="#fff"/>
+        <circle cx="107" cy="170" r="7" fill="#c9a24a"/><circle cx="155" cy="170" r="7" fill="#c9a24a"/>
+        <circle cx="104" cy="167" r="2.2" fill="#fff"/><circle cx="152" cy="167" r="2.2" fill="#fff"/>
+        <rect class="eyelid" x="95" y="156" width="22" height="14" rx="7" fill="url(#k-skin)"/>
+        <rect class="eyelid" x="143" y="156" width="22" height="14" rx="7" fill="url(#k-skin)"/>
+      </g>
+      <path d="M94 152 Q106 146 118 151" stroke="#39435f" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M142 151 Q154 146 166 152" stroke="#39435f" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M168 190 L178 186" stroke="#c98a7a" stroke-width="3" stroke-linecap="round"/>
+      <path class="mouth-rest" d="M120 198 Q130 203 140 197" stroke="#b06a5a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path class="mouth-open" d="M120 196 Q130 210 140 196 Q130 203 120 196Z" fill="#a65a4a"/></g>
+    </svg>`,
+  viola: (cls="") => `
+    <svg class="char-svg ${cls}" viewBox="0 0 260 460" width="100%"><g class="body-rig">
+      <defs>
+        <linearGradient id="v-hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8f0f8"/><stop offset="1" stop-color="#b9cfe0"/></linearGradient>
+        <linearGradient id="v-dress" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd0ea"/><stop offset="1" stop-color="#4a7ab0"/></linearGradient>
+        <linearGradient id="v-skin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdf0e6"/><stop offset="1" stop-color="#f5dcc8"/></linearGradient>
+      </defs>
+      <path d="M64 460 C56 348 78 282 130 264 C182 282 204 348 196 460Z" fill="url(#v-dress)"/>
+      <path d="M130 264 L122 340 L138 340Z" fill="#e8f6ff" opacity=".6"/>
+      <circle cx="130" cy="300" r="7" fill="#dff2ff" opacity=".8"/>
+      <rect x="114" y="236" width="32" height="40" rx="14" fill="url(#v-skin)"/>
+      <path d="M78 140 C60 260 74 360 96 420 L110 300 C96 260 96 200 104 160Z" fill="url(#v-hair)"/>
+      <path d="M182 140 C200 260 186 360 164 420 L150 300 C164 260 164 200 156 160Z" fill="url(#v-hair)"/>
+      <path d="M76 148 C66 240 100 292 130 292 C160 292 194 240 184 148Z" fill="url(#v-hair)"/>
+      <ellipse cx="130" cy="166" rx="60" ry="64" fill="url(#v-skin)"/>
+      <path d="M72 150 C76 102 102 76 130 76 C158 76 184 102 188 150 C172 128 148 136 130 136 C112 136 88 128 72 150Z" fill="url(#v-hair)"/>
+      <path d="M126 78 L130 132 L134 78Z" fill="#cfe0ee"/>
+      <ellipse cx="98" cy="186" rx="9" ry="6" fill="#f6b8ad" opacity=".5"/><ellipse cx="162" cy="186" rx="9" ry="6" fill="#f6b8ad" opacity=".5"/>
+      <g class="eyes">
+        <ellipse cx="106" cy="170" rx="10" ry="12" fill="#fff"/><ellipse cx="154" cy="170" rx="10" ry="12" fill="#fff"/>
+        <circle cx="107" cy="172" r="7" fill="#5a86c0"/><circle cx="155" cy="172" r="7" fill="#5a86c0"/>
+        <circle cx="104" cy="169" r="2.2" fill="#fff"/><circle cx="152" cy="169" r="2.2" fill="#fff"/>
+        <rect class="eyelid" x="95" y="157" width="22" height="15" rx="7" fill="url(#v-skin)"/>
+        <rect class="eyelid" x="143" y="157" width="22" height="15" rx="7" fill="url(#v-skin)"/>
+      </g>
+      <path d="M94 154 Q106 149 118 154" stroke="#9fb4c8" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M142 154 Q154 149 166 154" stroke="#9fb4c8" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path class="mouth-rest" d="M122 200 Q130 206 138 200" stroke="#c98a8a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path class="mouth-open" d="M122 198 Q130 210 138 198 Q130 204 122 198Z" fill="#b87a7a"/>
+      <circle cx="130" cy="228" r="5" fill="#bfe6ff" stroke="#8fd0ea" stroke-width="2"/></g>
+    </svg>`,
+  ashfang: (cls="") => `
+    <svg class="char-svg ${cls}" viewBox="0 0 240 200" width="100%"><g class="body-rig">
+      <defs><radialGradient id="af${cls}" cx="46%" cy="38%" r="72%">
+        <stop offset="0%" stop-color="#7a6a92"/><stop offset="55%" stop-color="#55486a"/><stop offset="100%" stop-color="#2c2440"/></radialGradient></defs>
+      <ellipse cx="120" cy="186" rx="70" ry="11" fill="rgba(30,18,48,.55)"/>
+      <path d="M52 96 C40 60 66 32 88 30 L96 58 C80 64 68 78 64 96Z" fill="#3d3254"/>
+      <path d="M188 96 C200 60 174 32 152 30 L144 58 C160 64 172 78 176 96Z" fill="#3d3254"/>
+      <path d="M120 40 C70 44 42 84 46 122 C34 130 36 150 52 154 C56 174 86 184 120 182 C154 184 184 174 188 154 C204 150 206 130 194 122 C198 84 170 44 120 40Z" fill="url(#af${cls})"/>
+      <path d="M30 128 C14 122 8 104 16 92 C20 106 30 114 42 116Z" fill="#3d3254"/>
+      <g class="eyes">
+        <path d="M78 96 L106 104 L78 112 C72 108 72 100 78 96Z" fill="#d8a2ff"/>
+        <path d="M162 96 L134 104 L162 112 C168 108 168 100 162 96Z" fill="#d8a2ff"/>
+        <circle cx="88" cy="104" r="3.5" fill="#1c0f34"/><circle cx="152" cy="104" r="3.5" fill="#1c0f34"/>
+        <rect class="eyelid" x="72" y="92" width="38" height="24" rx="10" fill="url(#af${cls})"/>
+        <rect class="eyelid" x="130" y="92" width="38" height="24" rx="10" fill="url(#af${cls})"/>
+      </g>
+      <path class="mouth-rest" d="M102 138 Q120 132 138 138" stroke="#1c1030" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <ellipse class="mouth-open" cx="120" cy="140" rx="12" ry="7" fill="#1c1030"/>
+      <path d="M104 138 L109 148 L114 138Z" fill="#efe6f6"/><path d="M126 138 L131 148 L136 138Z" fill="#efe6f6"/>
+      <path d="M64 158 Q60 170 66 178 M96 166 Q94 174 98 180 M144 166 Q146 174 142 180 M176 158 Q180 170 174 178" stroke="#3a2c58" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    </svg>`,
+  ashmask: (cls="") => `
+    <svg class="char-svg ${cls}" viewBox="0 0 220 230" width="100%"><g class="body-rig">
+      <defs>
+        <radialGradient id="am${cls}" cx="50%" cy="30%" r="80%">
+          <stop offset="0%" stop-color="#4e4270"/><stop offset="55%" stop-color="#372c52"/><stop offset="100%" stop-color="#1e1734"/></radialGradient>
+        <linearGradient id="amk${cls}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#f6f1e8"/><stop offset="1" stop-color="#cfc4b4"/></linearGradient>
+      </defs>
+      <ellipse cx="110" cy="216" rx="66" ry="10" fill="rgba(25,15,45,.55)"/>
+      <path d="M110 30 C60 44 44 96 50 150 C42 186 66 212 110 214 C154 212 178 186 170 150 C176 96 160 44 110 30Z" fill="url(#am${cls})"/>
+      <path d="M58 92 C44 78 46 58 58 48 C56 66 62 78 72 84Z" fill="#2c2244"/>
+      <path d="M162 92 C176 78 174 58 162 48 C164 66 158 78 148 84Z" fill="#2c2244"/>
+      <ellipse cx="110" cy="96" rx="44" ry="52" fill="url(#amk${cls})"/>
+      <path d="M110 44 C88 48 78 66 78 84 L84 82 C86 66 96 54 110 52 C124 54 134 66 136 82 L142 84 C142 66 132 48 110 44Z" fill="#b9aa96" opacity=".6"/>
+      <g class="eyes">
+        <path d="M88 92 L106 96 L88 102 C84 99 84 95 88 92Z" fill="#241a3e"/>
+        <path d="M132 92 L114 96 L132 102 C136 99 136 95 132 92Z" fill="#241a3e"/>
+        <rect class="eyelid" x="82" y="86" width="28" height="20" rx="8" fill="url(#amk${cls})"/>
+        <rect class="eyelid" x="110" y="86" width="28" height="20" rx="8" fill="url(#amk${cls})"/>
+      </g>
+      <path d="M118 108 C122 120 118 130 110 136" stroke="#b9aa96" stroke-width="2.5" fill="none"/>
+      <path class="mouth-rest" d="M100 126 Q110 130 120 126" stroke="#241a3e" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <ellipse class="mouth-open" cx="110" cy="128" rx="8" ry="5" fill="#241a3e"/>
+      <path d="M62 150 Q54 166 60 184 M158 150 Q166 166 160 184" stroke="#2c2244" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <circle cx="72" cy="60" r="3" fill="#c9a2ff" opacity=".8"/><circle cx="150" cy="56" r="2.5" fill="#c9a2ff" opacity=".7"/></g>
+    </svg>`
+};
+
+/* ---------- 시나리오 ---------- */
+function humanScript(){
+  return [
+    /* ===== 프롤로그 ===== */
+    {t:'bg', sky:'sky-dusk', embers:true, well:true},
+    {t:'say', who:'', text:'마차도 내려주지 않는 길을, 나는 걸어서 올랐다.'},
+    {t:'say', who:'', text:'물려받은 거라곤 이 낡은 영지 하나.\n사람도 정령도 떠난 곳 — 「재의 언덕」.'},
+    {t:'say', who:'PC', text:'…여기서, 정말 다시 살아갈 수 있을까.', think:true},
+    {t:'say', who:'PC', text:'거창한 꿈은 없다. 그냥… 조용히 먹고살고 싶을 뿐이다.', think:true},
+    {t:'say', who:'', text:'무너진 우물가. 재 사이로 작은 불씨 하나가 떨고 있었다.'},
+    {t:'stage', chars:[{id:'popo', pos:'center', float:true, scale:'width:34%;bottom:30%'}]},
+    {t:'say', who:'포포', text:'…치, 치직…'},
+    {t:'say', who:'PC', text:'정령…? 이런 곳에 혼자서. 다쳤구나.', think:true},
+    {t:'say', who:'PC', text:'…그냥 지나가자. 나 하나 건사하기도 벅차다.\n………\n…못 지나가겠네, 역시.', think:true},
+    {t:'choice', prompt:'꺼져가는 불씨에게—', options:[
+       {label:'“괜찮아. 이리 와.” 손을 내민다', eff:[{k:'popo',d:2},{k:'kind',d:1}], toast:'포포와의 정 +2', goto:'popo_warm'},
+       {label:'차갑게 식기 전에 온기를 나눈다(실리)', eff:[{k:'popo',d:1},{k:'practical',d:1}], toast:'포포와의 정 +1', goto:'popo_warm'}]},
+    {t:'label', name:'popo_warm'},
+    {t:'say', who:'', text:'불씨가 조심스레, 내 손끝으로 옮겨붙었다. 따뜻했다.'},
+    {t:'say', who:'포포', text:'…포, 포…?'},
+    {t:'say', who:'PC', text:'이름을 지어줄게. 포포… 어때?'},
+    {t:'say', who:'포포', text:'포포! 포—포!'},
+    {t:'say', who:'', text:'작은 불꽃이 처음으로, 기쁘게 튀어올랐다.', toast:'첫 정령 「포포」와 계약'},
+    {t:'bg', sky:'sky-night', stars:true, embers:true},
+    {t:'say', who:'', text:'그날 밤, 나는 화덕에 처음으로 불을 지폈다. 포포가 도왔다.'},
+    {t:'say', who:'', text:'— 그리고 다음 날 아침, 낯선 목소리가 언덕을 깨웠다.'},
+    {t:'bg', sky:'sky-dawn'},
+    {t:'stage', chars:[{id:'aria', pos:'center', breathe:true}]},
+    {t:'say', who:'아리아', text:'저기, 저기요—! 혹시, 여기 새 영주님이세요?!'},
+    {t:'say', who:'아리아', text:'저 아리아라고 해요! 떠돌이 견습 정령사! 재의 언덕에 불빛이 켜졌길래, 막 달려왔어요!'},
+    {t:'say', who:'아리아', text:'…아무도 안 사는 줄 알았거든요. 이 언덕, 저처럼요.'},
+    {t:'choice', prompt:'아리아에게—', options:[
+       {label:'“그럼, 같이 불을 지필래?”', eff:[{k:'aria',d:2},{k:'kind',d:1}], toast:'아리아와의 정 +2', goto:'aria_join'},
+       {label:'“일손이 필요하긴 했어.”', eff:[{k:'aria',d:1},{k:'practical',d:1}], toast:'아리아와의 정 +1', goto:'aria_join'}]},
+    {t:'label', name:'aria_join'},
+    {t:'say', who:'아리아', text:'…네? 저, 정말 여기 있어도 돼요?'},
+    {t:'say', who:'', text:'늘 웃던 아이의 목소리가, 아주 잠깐 흔들렸다.'},
+    {t:'say', who:'아리아', text:'…헤헤. 있을게요. 여기, 있을게요!'},
+    {t:'say', who:'', text:'— 프롤로그 끝. 1챕터 「우물과 시장과 번개」 —', toast:'1챕터 시작!'},
+
+    /* ===== 1챕터: 우물 복구 ===== */
+    {t:'bg', sky:'sky-day', well:true},
+    {t:'stage', chars:[{id:'aria', pos:'left', breathe:true},{id:'popo', pos:'right', float:true, scale:'width:26%;bottom:26%;right:8%'}]},
+    {t:'say', who:'', text:'며칠째, 우리는 무너진 우물과 씨름했다.\n돌을 걷어내고, 재를 퍼내고, 또 걷어내고.'},
+    {t:'say', who:'아리아', text:'선배! 마지막 돌이에요! 하나, 둘—'},
+    {t:'say', who:'', text:'쿠구궁— 돌이 구르고, 잠시의 정적.\n…그리고 깊은 곳에서, 맑은 소리가 올라왔다.'},
+    {t:'say', who:'아리아', text:'물이다!! 물 나와요!! 진짜 나와요!!'},
+    {t:'say', who:'포포', text:'포포—!! 포포포!!'},
+    {t:'say', who:'PC', text:'백 년쯤 마른 줄 알았던 우물이었다.\n…이 언덕, 아직 살아 있었구나.', think:true, toast:'영지 재건: 우물 복구 완료!'},
+
+    /* ===== 1챕터: 시장 — 마지못한 정의구현 ===== */
+    {t:'bg', sky:'sky-market', stalls:true},
+    {t:'stage', chars:[{id:'aria', pos:'center', breathe:true}]},
+    {t:'say', who:'', text:'씨앗과 연장을 사러, 이웃 마을 장터에 내려갔다.'},
+    {t:'say', who:'아리아', text:'선배, 제가 흥정은 좀 해요! 맡겨주세요!'},
+    {t:'say', who:'', text:'…십 분 뒤. 아리아는 울 것 같은 얼굴로 돌아왔다.'},
+    {t:'say', who:'아리아', text:'씨앗 한 줌에 은화 세 닢이래요…. 원래 반 닢이랬는데, 제가 "재의 언덕에서 왔다"니까 갑자기 여섯 배가 됐어요.'},
+    {t:'say', who:'상인', text:'저주받은 땅에 파는 물건엔 위험수당이 붙지. 싫으면 말고~'},
+    {t:'say', who:'PC', text:'…참자. 조용히 살기로 했잖아. 소란 피우면 피곤해진다.\n………\n…아니, 이건 그냥 도둑질이잖아.', think:true},
+    {t:'choice', prompt:'결국—', options:[
+       {label:'앞으로 나선다. "지금 뭐라고 하셨죠?"', eff:[{k:'aria',d:1},{k:'kind',d:1}], toast:'마지못한 정의구현!', goto:'market_justice'},
+       {label:'장부를 꺼내 조목조목 시세를 읊는다', eff:[{k:'aria',d:1},{k:'practical',d:1}], toast:'마지못한 정의구현! (계산형)', goto:'market_justice'}]},
+    {t:'label', name:'market_justice'},
+    {t:'say', who:'', text:'조용히 살고 싶은 사람의 목소리가, 장터 한복판에 울려 퍼졌다.\n구경꾼이 모여들었다. 상인의 얼굴이 붉으락푸르락해졌다.'},
+    {t:'say', who:'상인', text:'뭐, 뭐야 당신…! 남의 장사에!'},
+    {t:'say', who:'?', text:'—여섯 배는 심했지, 영감.'},
+    {t:'stage', chars:[{id:'kaidel', pos:'right', breathe:true},{id:'aria', pos:'left', breathe:true}]},
+    {t:'say', who:'', text:'옆 좌판에 기대 있던 남자가, 사과를 씹으며 끼어들었다.'},
+    {t:'say', who:'카이델', text:'지난주엔 상단 꼬맹이 삯도 떼먹으셨잖아? 내가 그거 받아주다 수배 전단에 실렸고. 아주 대단한 장사야.'},
+    {t:'say', who:'상인', text:'너, 넌 그 사고뭉치…!! 알았다, 알았어! 반 닢! 반 닢에 가져가!!'},
+    {t:'say', who:'아리아', text:'와아…! 고맙습니다!'},
+    {t:'say', who:'카이델', text:'고맙긴. 나선 건 이쪽이 먼저였는데.\n…재의 언덕의 새 영주라. 소문이 자자하던데, 조용히 살고 싶은 얼굴이 왜 그렇게 시끄럽게 사나?'},
+    {t:'say', who:'PC', text:'…남 말 할 처지인가, 수배 전단.', think:true},
+    {t:'say', who:'카이델', text:'카이델이다. 갈 곳 없는 몸이고, 마침 밥값은 하는 편이지.\n…그 언덕, 일손 안 필요하냐?'},
+    {t:'choice', prompt:'수배 전단의 사고뭉치에게—', options:[
+       {label:'“밥은 많이 먹게 생겼네. …따라와.”', eff:[{k:'kaidel',d:2},{k:'kind',d:1}], toast:'카이델과의 정 +2', goto:'kaidel_join'},
+       {label:'“일당은 성과제다.”', eff:[{k:'kaidel',d:1},{k:'practical',d:1}], toast:'카이델과의 정 +1', goto:'kaidel_join'}]},
+    {t:'label', name:'kaidel_join'},
+    {t:'say', who:'카이델', text:'…풉. 재밌는 영주네. 좋아, 계약 성립.'},
+    {t:'say', who:'', text:'그렇게, 언덕의 식구가 또 하나 늘었다.', toast:'카이델 합류!'},
+
+    /* ===== 1챕터: 모닥불 — 자유 대사 ===== */
+    {t:'bg', sky:'sky-night', stars:true, embers:true},
+    {t:'stage', chars:[{id:'aria', pos:'left', breathe:true},{id:'kaidel', pos:'right', breathe:true}]},
+    {t:'say', who:'', text:'그날 저녁. 언덕에서, 새 식구들과 첫 모닥불을 피웠다.\n불빛에 모두의 얼굴이 붉게 물들었다.'},
+    {t:'say', who:'아리아', text:'영주님, 영주님! 한마디 해주세요! 건배사 같은 거!'},
+    {t:'input', prompt:'모닥불 앞. 식구들에게 건넬 한마디 —'},
+    {t:'say', who:'아리아', text:'…! 그 말, 꼭 기억할게요!'},
+    {t:'say', who:'카이델', text:'…하. 별난 영주라니까.'},
+    {t:'say', who:'포포', text:'포포~! 포포!'},
+
+    /* ===== 1챕터: 밤 — 첫 정화전 ===== */
+    {t:'bg', sky:'sky-night', stars:true, embers:true, well:true},
+    {t:'say', who:'', text:'그날 밤. 우물가의 공기가, 문득 탁해졌다.'},
+    {t:'say', who:'포포', text:'포…포! 포포!!'},
+    {t:'say', who:'', text:'재가 소용돌이치며 일어난다.\n정령 고갈이 남긴 오염체 — 「그을음」이다.'},
+    {t:'say', who:'카이델', text:'저게 요즘 변방을 갉아먹는 놈들인가. …영주, 물러서. 칼로는 안 베이는 종류다.'},
+    {t:'say', who:'PC', text:'알아. 저건 — 정령의 일이야.\n포포, 갈 수 있지?', think:false},
+    {t:'say', who:'포포', text:'포포—!!'},
+    {t:'battle', player:'popo', enemy:'smog'},
+    {t:'say', who:'', text:'빛의 재가 눈처럼 내려앉았다.\n그을음이 있던 자리 — 마른 흙을 뚫고, 연둣빛 새싹 하나가 올라와 있었다.'},
+    {t:'say', who:'아리아', text:'…선배. 언덕이, 살아나고 있어요.'},
+    {t:'say', who:'포포', text:'…포포. 포.'},
+    {t:'say', who:'PC', text:'세계를 구할 생각은 지금도 없다.\n그저 — 이 언덕의 불빛과 이 시끄러운 식구들 정도는, 지키기로 했다.', think:true},
+
+    /* ============ 2챕터: 루트 분기 ============ */
+    {t:'say', who:'', text:'— 1챕터 끝. 2챕터 「언덕의 밤들」 —', toast:'2챕터 시작!'},
+    {t:'bg', sky:'sky-dusk', embers:true, well:true},
+    {t:'say', who:'', text:'며칠이 흘렀다. 우물가의 새싹은 셋으로 늘었고,\n화덕에선 매일 저녁 연기가 올랐다.'},
+    {t:'say', who:'PC', text:'…이상하지. 폐허라던 언덕의 하루가,\n요즘은 조금, 짧게 느껴진다.', think:true},
+    {t:'choice', prompt:'오늘 저녁은 —', options:[
+      {label:'🍃 아리아의 소환 연습을 봐주러 간다', route:'aria', goto:'r_aria'},
+      {label:'⚡ 카이델이 칼을 손질하는 화덕가에 앉는다', route:'kaidel', goto:'r_kaidel'},
+      {label:'💧 우물 아래서 들리는 낯선 물소리를 따라간다', route:'viola', goto:'r_viola'}]},
+
+    /* ---- 루트 A: 아리아 — 바람의 약속 ---- */
+    {t:'label', name:'r_aria'},
+    {t:'bg', sky:'sky-night', stars:true},
+    {t:'stage', chars:[{id:'aria', pos:'center', breathe:true}]},
+    {t:'say', who:'', text:'언덕 뒤 풀밭. 아리아는 달빛 아래서 혼자 소환진을 그리고 있었다.'},
+    {t:'say', who:'아리아', text:'바람아, 와라! …와 주라? …제발요?'},
+    {t:'say', who:'', text:'…펑. 오늘도 소환진은 민들레 씨앗만 날려 보냈다.'},
+    {t:'say', who:'아리아', text:'…역시 저, 재능 없나 봐요.\n마을에서도 그랬어요. 사고만 치는 애라고.'},
+    {t:'say', who:'아리아', text:'…선배. 저 언젠가 쓸모없어지면…\n여기서도, 나가야 해요?'},
+    {t:'choice', prompt:'달빛 아래, 불안한 눈동자에게—', options:[
+      {label:'“쓸모로 있는 게 아냐. 네가 있어서 좋은 거야.”', eff:[{k:'aria',d:2},{k:'kind',d:1}], toast:'아리아와의 정 +2', goto:'r_aria2'},
+      {label:'“쓸모라면 차고 넘쳐. 장작 패기, 물 긷기, 아침 깨우기—”', eff:[{k:'aria',d:1},{k:'practical',d:1}], toast:'아리아와의 정 +1', goto:'r_aria2'}]},
+    {t:'label', name:'r_aria2'},
+    {t:'say', who:'아리아', text:'…선배는, 진짜…\n…사람 울리는 재주가 있다니까요.'},
+    {t:'input', prompt:'바람을 기다리는 아이에게, 한마디 —'},
+    {t:'say', who:'아리아', text:'…헤헤. 지금 그 말에,\n바람이 대답한 것 같아요.'},
+    {t:'say', who:'', text:'그 순간 — 풀잎이 일제히 한쪽으로 누웠다.\n민들레 씨앗이 소용돌이치며 떠오르고, 그 가운데에\n작은 바람의 정령이, 처음으로 눈을 떴다.', toast:'아리아의 정령 「솔」이 깨어났다!'},
+    {t:'say', who:'아리아', text:'…!! 선배, 봤어요?! 제, 제 정령이에요!!\n아 진짜, 오늘 우는 거 아닌데…!!'},
+    {t:'say', who:'PC', text:'재능이 없는 게 아니었다.\n너의 바람은 그저 — 함께 기다려줄 사람이 필요했던 거다.', think:true},
+    {t:'goto', to:'night2'},
+
+    /* ---- 루트 B: 카이델 — 녹슨 맹세 ---- */
+    {t:'label', name:'r_kaidel'},
+    {t:'bg', sky:'sky-night', embers:true},
+    {t:'stage', chars:[{id:'kaidel', pos:'center', breathe:true}]},
+    {t:'say', who:'', text:'화덕가. 카이델은 낡은 검을 무릎에 얹고, 말없이 날을 닦고 있었다.'},
+    {t:'say', who:'카이델', text:'기사단 시절 버릇이지. 칼이 울면 잠이 안 와.'},
+    {t:'say', who:'PC', text:'…수배 전단엔 왜 실린 거야?'},
+    {t:'say', who:'카이델', text:'상단 호위 시절 얘기다. 삯을 떼먹힌 꼬맹이가 있었어.\n귀족 나리 창고 앞에서 사흘을 울더군.\n…그래서 그 창고를, 좀 부쉈다.'},
+    {t:'say', who:'카이델', text:'지키라고 배운 손으로, 지키지 못한 게 더 많아.\n기사단도, 동료도, 그 꼬맹이의 삯도 결국은.\n…우습지. 녹슨 건 칼이 아니라 맹세 쪽이야.'},
+    {t:'choice', prompt:'불빛에 흔들리는 옆얼굴에게—', options:[
+      {label:'“지금 지키고 있잖아. 이 언덕에서, 매일.”', eff:[{k:'kaidel',d:2},{k:'kind',d:1}], toast:'카이델과의 정 +2', goto:'r_kaidel2'},
+      {label:'“그 창고, 얼마짜리였는데? …소송 가면 이겨.”', eff:[{k:'kaidel',d:1},{k:'practical',d:1}], toast:'카이델과의 정 +1', goto:'r_kaidel2'}]},
+    {t:'label', name:'r_kaidel2'},
+    {t:'say', who:'카이델', text:'…풉. 하하. 영주랑 얘기하다 보면\n심각해지려야 심각해질 수가 없군.'},
+    {t:'input', prompt:'녹슨 맹세를 쥔 남자에게, 한마디 —'},
+    {t:'say', who:'카이델', text:'…하. 영주 말은 이상하게, 오래 남는단 말이지.'},
+    {t:'say', who:'', text:'카이델은 검을 칼집에 넣고 — 처음으로, 칼끝이 아니라\n언덕의 불빛 쪽을 오래 바라보았다.', toast:'카이델의 맹세가 다시 벼려진다'},
+    {t:'say', who:'PC', text:'녹슨 맹세도, 다시 벼리면 된다.\n마침 여긴 — 화덕이 있는 언덕이니까.', think:true},
+    {t:'goto', to:'night2'},
+
+    /* ---- 루트 C: 비올라 — 물빛 등불 ---- */
+    {t:'label', name:'r_viola'},
+    {t:'bg', sky:'sky-night', stars:true, well:true},
+    {t:'say', who:'', text:'우물 아래에서, 물소리가 났다.\n두레박 줄을 타고 내려가자 — 낡은 수로에, 등불 하나가 떠 있었다.'},
+    {t:'stage', chars:[{id:'viola', pos:'center', breathe:true}]},
+    {t:'say', who:'비올라', text:'…손님이 오실 줄 알았다면,\n등불을 하나 더 밝혀둘 걸 그랬네요.'},
+    {t:'say', who:'', text:'은발의 여인이 물 위에 서 있었다.\n곁에는 맑은 물의 정령이 등불처럼 일렁였다.'},
+    {t:'say', who:'비올라', text:'비올라라고 합니다. 이 영지의… 마지막 관리인이었죠.\n영지가 버려진 뒤에도, 수맥은 누군가 지켜야 했으니까요.\n…세어보니, 벌써 십이 년이 되었네요.'},
+    {t:'say', who:'PC', text:'십이 년. 아무도 돌아오지 않을 곳을,\n혼자서, 등불 하나로.', think:true},
+    {t:'say', who:'비올라', text:'우물이 다시 노래하기에, 위에 누가 왔구나 했어요.\n…물소리가 이렇게 반가운 건, 처음이었답니다.'},
+    {t:'choice', prompt:'십이 년의 고요 앞에서—', options:[
+      {label:'“이제 위에서 함께 살아요. 등불은 여럿일수록 밝으니까.”', eff:[{k:'viola',d:2},{k:'kind',d:1}], toast:'비올라와의 정 +2', goto:'r_viola2'},
+      {label:'“관리인 급여, 소급 지급하죠. 십이 년 치 전부.”', eff:[{k:'viola',d:1},{k:'practical',d:1}], toast:'비올라와의 정 +1', goto:'r_viola2'}]},
+    {t:'label', name:'r_viola2'},
+    {t:'say', who:'비올라', text:'…후후. 후후후.\n…죄송해요. 웃는 법을, 잠깐 잊고 있었어서.'},
+    {t:'input', prompt:'십이 년을 홀로 지킨 사람에게, 한마디 —'},
+    {t:'say', who:'비올라', text:'…그 말은, 오늘 밤 수로의 물처럼\n오래, 오래 맴돌 것 같아요.'},
+    {t:'say', who:'', text:'비올라는 등불을 들고, 십이 년 만에 지상으로 올라왔다.\n물의 정령이 그 뒤를 강아지처럼 따라왔다.', toast:'비올라 합류!'},
+    {t:'say', who:'PC', text:'언덕은 이제 알고 있다.\n지키는 사람은, 지켜져야 한다는 걸.', think:true},
+    {t:'goto', to:'night2'},
+
+    /* ---- 공통: 2차 정화전 ---- */
+    {t:'label', name:'night2'},
+    {t:'bg', sky:'sky-night', stars:true, embers:true, well:true},
+    {t:'say', who:'', text:'그때 — 언덕 아래에서, 길고 낮은 울음이 들렸다.'},
+    {t:'say', who:'포포', text:'포…! 포포!!'},
+    {t:'say', who:'', text:'잿빛 안개가 능선을 타고 흐른다.\n그을음보다 크고, 빠르다.\n오염체 — 「잿송곳니」.'},
+    {t:'say', who:'PC', text:'…식구가 늘어난 밤마다 오는 건 반칙이잖아.\n포포. 한 번 더, 같이 가자.'},
+    {t:'say', who:'포포', text:'포포—!!'},
+    {t:'battle', player:'popo', enemy:'ashfang'},
+    {t:'say', who:'', text:'빛의 재가 걷힌 자리 — 잿송곳니가 있던 흙 속에서,\n은빛으로 맥동하는 씨앗 하나가 나왔다.'},
+    {t:'say', who:'PC', text:'정령 고갈의 한가운데서 온 것 같은, 낯선 씨앗.\n…조용히 살긴 글렀다는 예감이 들지만 —\n이 식구들이라면, 뭐가 와도 괜찮을 것 같다.', think:true},
+    {t:'say', who:'', text:'언덕의 밤은 그렇게, 조금씩 넓어지고 있었다.'},
+
+    /* ============ 3챕터: 은빛 씨앗 ============ */
+    {t:'say', who:'', text:'— 2챕터 끝. 3챕터 「은빛 씨앗」 —', toast:'3챕터 시작!'},
+    {t:'bg', sky:'sky-dawn', well:true},
+    {t:'stage', chars:[{id:'popo', pos:'center', float:true, scale:'width:30%;bottom:28%'}]},
+    {t:'say', who:'', text:'다음 날 아침. 은빛 씨앗은 밤새 머리맡에서 희미하게 빛났고,\n포포는 그 곁을 한 번도 떠나지 않았다.'},
+    {t:'say', who:'포포', text:'포포… 포. 포포.'},
+    {t:'say', who:'PC', text:'…네가 그렇게까지 말한다면. 심어보자.', think:true},
+    {t:'choice', prompt:'씨앗을 심을 자리는—', options:[
+      {label:'우물가, 아침 해가 제일 먼저 닿는 곳', eff:[{k:'popo',d:1},{k:'kind',d:1}], toast:'포포와의 정 +1', goto:'c3_plant'},
+      {label:'화덕 곁, 온기가 가장 오래 머무는 곳', eff:[{k:'popo',d:1},{k:'practical',d:1}], toast:'포포와의 정 +1', goto:'c3_plant'}]},
+    {t:'label', name:'c3_plant'},
+    {t:'say', who:'', text:'흙을 덮은 순간 — 은빛 빛기둥이 하늘로 솟았다.\n씨앗은 눈앞에서 싹을 틔우고, 가지를 뻗고,\n순식간에 어른 키만 한 어린 나무가 되었다.', toast:'정령수(精靈樹) 묘목이 자라났다!'},
+    {t:'say', who:'', text:'잎사귀 사이사이, 작은 정령들의 기척이 별처럼 반짝인다.\n죽은 줄로만 알았던 언덕이 — 숨을 쉬기 시작했다.'},
+    {t:'jumproute', map:{aria:'c3_aria', kaidel:'c3_kaidel', viola:'c3_viola'}, fallback:'c3_night'},
+
+    {t:'label', name:'c3_aria'},
+    {t:'stage', chars:[{id:'aria', pos:'center', breathe:true}]},
+    {t:'say', who:'아리아', text:'선배!! 솔이 정령수 가지에서 안 내려와요!\n완전, 완전 신났어요!'},
+    {t:'say', who:'아리아', text:'…있죠, 선배. 이 나무가 다 자라면요,\n그 아래서 축제해요. 우리 식구들끼리. 약속!'},
+    {t:'say', who:'PC', text:'약속이 하나씩 늘어난다.\n…이 언덕에서 지켜야 할 것들이, 자꾸만.', think:true},
+    {t:'goto', to:'c3_night'},
+
+    {t:'label', name:'c3_kaidel'},
+    {t:'stage', chars:[{id:'kaidel', pos:'center', breathe:true}]},
+    {t:'say', who:'카이델', text:'…나무라. 기사단에도 서약수(誓約樹)가 있었지.\n검을 바치고, 맹세를 새기는 나무.'},
+    {t:'say', who:'', text:'카이델은 낡은 검을 정령수 앞 흙에, 조용히 꽂았다.'},
+    {t:'say', who:'카이델', text:'이 나무가 크는 동안은, 여기 있으마.\n…영주. 그거면 됐냐.'},
+    {t:'goto', to:'c3_night'},
+
+    {t:'label', name:'c3_viola'},
+    {t:'stage', chars:[{id:'viola', pos:'center', breathe:true}]},
+    {t:'say', who:'비올라', text:'수맥을 뿌리 쪽으로 이어드릴게요.\n…후후. 물길 트는 솜씨는, 십이 년 치니까요.'},
+    {t:'say', who:'', text:'비올라의 손끝을 따라 은빛 물줄기가 뿌리로 스몄다.\n정령수의 잎이 일제히, 감사하듯 반짝였다.'},
+    {t:'say', who:'비올라', text:'…이상하네요.\n지키는 일이, 처음으로 즐겁습니다.'},
+    {t:'goto', to:'c3_night'},
+
+    {t:'label', name:'c3_night'},
+    {t:'bg', sky:'sky-night', stars:true, embers:true, well:true},
+    {t:'say', who:'', text:'그날 밤. 정령수의 은빛이 갑자기 크게 흔들렸다.\n잿빛 안개가 나무를 향해 모여들고 — 그 한가운데,\n하얀 가면을 쓴 그림자가 떠올랐다.'},
+    {t:'say', who:'', text:'오염체들의 수괴 — 「잿가면」.\n정령 고갈의 심장부에서 온 자다.'},
+    {t:'say', who:'PC', text:'…저 나무는 못 건드린다.\n이 언덕의 내일이니까. — 포포!'},
+    {t:'say', who:'포포', text:'포——포!!'},
+    {t:'battle', player:'popo', enemy:'ashmask'},
+    {t:'say', who:'', text:'잿가면은 부서지며 — 처음으로, 목소리를 남겼다.\n「…따뜻, 하구나. 이 언덕은…」\n오염체에게도, 돌아가고 싶은 곳이 있었던 걸까.'},
+    {t:'input', prompt:'정령수 아래. 잎이 빛나며 묻는다 — 당신의 소원은?'},
+    {t:'say', who:'', text:'정령수의 잎이 크게 한 번 반짝이고,\n소원은 조용히, 뿌리로 스며들었다.'},
+    {t:'say', who:'PC', text:'조용히 먹고사는 건 진작에 글렀다.\n대신 — 이 언덕엔 이제 지킬 것과, 지켜주는 이들이 있다.\n그거면, 충분하다.', think:true},
+    {t:'end'}
+  ];
+}
+
+function spiritScript(tid){
+  const K = tid==='kaidel';
+  const T = K ? '카이델' : '아리아';
+  return [
+    /* ===== 프롤로그 ===== */
+    {t:'bg', sky:'sky-night', stars:true, embers:true, well:true},
+    {t:'say', who:'', text:'사람들이 모두 떠난 언덕에도, 남는 것들이 있다.'},
+    {t:'say', who:'', text:'이를테면 — 나.\n꺼진 화덕 자리를 지키는, 이름 없는 작은 불씨 정령.'},
+    {t:'say', who:'PC', text:'오늘도 언덕엔 바람 소리뿐.\n…외롭다는 감정도, 이젠 익숙하다.', think:true},
+    {t:'say', who:'', text:'그 밤, 우물가에 낯선 발소리가 굴러들어왔다.'},
+    {t:'stage', chars:[{id: K?'kaidel':'aria', pos:'center', breathe:true}]},
+    {t:'say', who:T, text: K?'…아야야. 여기까진 못 쫓아오겠지…':'…소환진이 그렇게 터질 줄 몰랐단 말이야….'},
+    {t:'say', who:'', text:'인간이다.\n'+(K?'옷자락엔 싸움 자국. 소매엔 수배 전단 쪼가리.\n…한눈에 봐도, 아주 말썽쟁이다.':'망토는 그을리고, 등짐은 터져 있다.\n…한눈에 봐도, 아주 말썽쟁이다.')},
+    {t:'say', who:'PC', text:'시끄러운 게 왔다. …모른 척하자.\n………\n…떨고 있잖아, 저거.', think:true},
+    {t:'choice', prompt:'쓰러진 인간에게—', options:[
+       {label:'곁에 다가가 온기를 나눠준다', eff:[{k:'care',d:2},{k:'kind',d:1}], toast:T+'와의 정 +2', goto:'night_care'},
+       {label:'들키지 않게, 뒤에서 몰래 데운다', eff:[{k:'care',d:1},{k:'practical',d:1}], toast:T+'와의 정 +1', goto:'night_care'}]},
+    {t:'label', name:'night_care'},
+    {t:'say', who:'', text:'나는 밤새 그 곁에서 타올랐다.\n인간은 웅크린 채, 아이처럼 잠들었다.'},
+    {t:'say', who:T, text: K?'…춥, 다…':'…잘못, 했어요…. 쫓아내지 마세요….'},
+    {t:'say', who:'PC', text:'온기를. 조금 더, 온기를.', think:true},
+    {t:'bg', sky:'sky-dawn', embers:true},
+    {t:'stage', chars:[{id: K?'kaidel':'aria', pos:'center', breathe:true}]},
+    {t:'say', who:T, text: K?'…뭐야. 너냐? 밤새 나 데워준 게.':'…어? 정령?! 진짜 정령이다!\n…너, 나 밤새 지켜준 거야?'},
+    {t:'say', who:T, text: K?'정령이 왜 이런 폐허에 혼자… 아.\n…너도, 혼자구나.':'마을에선 사고뭉치라고 쫓겨났는데….\n너는 도망 안 가네. 내 옆에서.'},
+    {t:'choice', prompt:'인간의 손끝이 다가온다—', options:[
+       {label:'「포포…」 서툰 소리로 대답한다', eff:[{k:'care',d:2},{k:'kind',d:1}], toast:T+'와의 정 +2', goto:'get_name'},
+       {label:'불꽃을 한 번, 크게 흔들어 보인다', eff:[{k:'care',d:1},{k:'practical',d:1}], toast:T+'와의 정 +1', goto:'get_name'}]},
+    {t:'label', name:'get_name'},
+    {t:'say', who:T, text: K?'…풉. 뭐야, 그 소리.':'…풉! 뭐야 그 소리, 귀여워!'},
+    {t:'say', who:T, text: K?'이름이 없다고? 불편하네.\n그럼 — 엠버. 오늘부터 넌 엠버다. 불만 있냐?':'너 이름이 없구나…. 그럼 내가 지어줄게 — 엠버!\n따뜻한 이름이지? 헤헤.'},
+    {t:'say', who:'', text:'이름을, 받았다.\n나를 부르는 목소리가, 이 언덕에 생겼다.', toast:'이름 「엠버」를 받았다'},
+    {t:'say', who:'PC', text:'수백 년을 여기 있었다.\n그런데 지금이, 처음으로 — 따뜻하다.', think:true},
+    {t:'say', who:T, text: K?'…같이 가 줄 거지, 엠버.':'…같이 가 줄 거지, 엠버?'},
+    {t:'input', prompt:'서툰 불꽃의 말로, 대답해보자 —', spirit:true},
+    {t:'say', who:T, text: K?'…그래. 그거면 충분하다.':'…응! 그거면 충분해!'},
+    {t:'say', who:'', text:'— 프롤로그 끝. 1챕터 「말썽쟁이와 화덕」 —', toast:'1챕터 시작!'},
+
+    /* ===== 1챕터: 재건과 말썽 ===== */
+    {t:'bg', sky:'sky-day', well:true},
+    {t:'stage', chars:[{id: K?'kaidel':'aria', pos:'center', breathe:true}]},
+    {t:'say', who:'', text:'말썽쟁이는 다음 날부터 소매를 걷었다.\n무너진 화덕을 다시 쌓겠다는 것이다.'},
+    {t:'say', who:T, text: K?'기사 시절에 야영 화덕 정도는 쌓아봤다. …아마도.':'화덕쯤이야! 견습이라도 정령사라구! …아마도!'},
+    {t:'say', who:'', text:'…반나절 뒤, 화덕은 두 번 무너졌고,\n말썽쟁이는 세 번째 돌무더기 위에 앉아 있었다.'},
+    {t:'say', who:T, text: K?'…엠버. 웃었냐, 지금.':'…엠버, 방금 웃었지! 불꽃이 파르르 했어!'},
+    {t:'say', who:'PC', text:'웃은 게 아니라 한숨이다.\n…비켜봐. 돌 쌓는 각도는, 내가 수백 년 봐 왔으니까.', think:true},
+    {t:'say', who:'', text:'불꽃이 가리키는 대로 돌이 놓이고 —\n세 번째 화덕은, 무너지지 않았다.'},
+    {t:'say', who:T, text: K?'…제법인데, 파트너.':'해냈다!! 엠버, 우리 해냈어!!', toast:'영지 재건: 화덕 복구 완료!'},
+
+    /* ===== 1챕터: 마을 사람의 말 ===== */
+    {t:'bg', sky:'sky-market', stalls:true},
+    {t:'stage', chars:[{id: K?'kaidel':'aria', pos:'left', breathe:true}]},
+    {t:'say', who:'', text:'장작과 곡식을 얻으러, 말썽쟁이는 이웃 마을로 내려갔다.\n나는 등불 속에 숨어 따라갔다.'},
+    {t:'say', who:'마을 사람', text: K?'재의 언덕에 산다고? 그 수배 전단 사고뭉치가?\n…이보게, 저 놈이랑 엮이지 말게. 불행이 옮아.':'재의 언덕에 산다고? 그 소환 사고 낸 견습이?\n…쯧. 마을에서 쫓겨난 게 언덕까지 태워먹겠군.'},
+    {t:'say', who:'', text:'말썽쟁이는 웃으며 "하하, 그렇죠 뭐" 하고 돌아섰다.\n…등 뒤에서, 웃음이 지워지는 걸 나는 봤다.'},
+    {t:'say', who:'PC', text:'…부당하다.\n저 인간이 어젯밤 언 손으로 몇 번이나 돌을 쌓았는지, 저들은 모른다.', think:true},
+    {t:'choice', prompt:'등불 속의 나는—', options:[
+       {label:'등불을 확 밝혀, 곁에 있다고 알린다', eff:[{k:'care',d:2},{k:'kind',d:1}], toast:T+'와의 정 +2', goto:'lantern'},
+       {label:'돌아가는 길, 발밑을 조용히 데워준다', eff:[{k:'care',d:1},{k:'practical',d:1}], toast:T+'와의 정 +1', goto:'lantern'}]},
+    {t:'label', name:'lantern'},
+    {t:'say', who:T, text: K?'…봤냐, 방금 거. 하하.\n…됐어. 네가 봤으면 됐다, 엠버.':'…들었지, 방금 거. 에헤헤.\n…괜찮아. 네가 있으면, 괜찮아. 엠버.'},
+    {t:'say', who:'PC', text:'괜찮지 않은 목소리로 괜찮다고 하지 마라.\n…오늘 밤은, 조금 더 따뜻하게 타 줘야겠다.', think:true},
+
+    /* ===== 1챕터: 밤 — 엠버의 정화전 ===== */
+    {t:'bg', sky:'sky-night', stars:true, embers:true, well:true},
+    {t:'say', who:'', text:'그 밤. 언덕의 공기가, 문득 탁해졌다.'},
+    {t:'say', who:T, text: K?'…엠버? 뭐야, 저거.':'…엠버?! 저, 저거 뭐야?!'},
+    {t:'say', who:'', text:'재가 소용돌이치며 일어난다.\n정령 고갈이 남긴 오염체 — 「그을음」.\n…저건, 인간이 어쩔 수 있는 것이 아니다.'},
+    {t:'say', who:'PC', text:'물러나 있어, 말썽쟁이.\n수백 년 만이지만 — 화덕의 불이 어떤 건지, 보여주지.', think:true},
+    {t:'battle', player:'ember', enemy:'smog'},
+    {t:'say', who:'', text:'빛의 재가 눈처럼 내려앉았다.\n그을음이 있던 자리에, 연둣빛 새싹 하나가 올라와 있었다.'},
+    {t:'say', who:T, text: K?'…너, 나 지켜준 거냐. 또.\n…하. 갈수록 빚만 늘어나네, 이 언덕에.':'엠버, 너… 나 지켜준 거야? 또?\n…고마워. 정말, 정말 고마워!'},
+    {t:'say', who:'PC', text:'어느 날, 나는 사람을 주웠다.\n…아니. 어쩌면, 주워진 건 나였을지도.', think:true},
+
+    /* ============ 2챕터: 잿밤의 파수 ============ */
+    {t:'say', who:'', text:'— 1챕터 끝. 2챕터 「잿밤의 파수」 —', toast:'2챕터 시작!'},
+    {t:'bg', sky:'sky-day', well:true},
+    {t:'stage', chars:[{id: K?'kaidel':'aria', pos:'center', breathe:true}]},
+    {t:'say', who:'', text:'다음 날. 말썽쟁이가 이상했다.\n아침부터 돌을 세 번 떨어뜨리고, 두 번 헛디뎠다.'},
+    {t:'say', who:T, text: K?'…괜찮다니까. 기사가 감기 따위에… 콜록.':'끄떡없다니까…! 견습 정령사는 튼튼… 에취!!'},
+    {t:'say', who:'', text:'괜찮지 않았다. 밤샘 돌쌓기가 화근이었다.\n인간은 금방 뜨거워지고, 금방 식는 생물이었다.'},
+    {t:'say', who:'PC', text:'…어리석은 생물.\n불도 아니면서 몸을 태워가며 일하다니.', think:true},
+    {t:'choice', prompt:'앓아누운 말썽쟁이에게—', options:[
+      {label:'하루 종일 이마의 물수건을 알맞게 데운다', eff:[{k:'care',d:2},{k:'kind',d:1}], toast:T+'와의 정 +2', goto:'sp_care2'},
+      {label:'집 안 공기를 데워, 감기가 스스로 물러나게 한다', eff:[{k:'care',d:1},{k:'practical',d:1}], toast:T+'와의 정 +1', goto:'sp_care2'}]},
+    {t:'label', name:'sp_care2'},
+    {t:'say', who:'', text:'해가 기울도록, 나는 그 곁을 지켰다.\n열에 들뜬 숨소리가, 조금씩 고르게 가라앉았다.'},
+    {t:'input', prompt:'앓는 말썽쟁이의 머리맡에서 —', spirit:true},
+    {t:'say', who:T, text: K?'…엠버가 있으니까, 괜찮아.\n…그런 잠꼬대를, 그 인간은 했다.':'…엠버 목소리, 꿈에서도 들려….\n…그런 잠꼬대를, 그 인간은 했다.', raw:true},
+    {t:'say', who:'PC', text:'…불꽃에도 심장이 있다면,\n지금 이런 온도일 것이다.', think:true},
+    {t:'bg', sky:'sky-night', stars:true, embers:true, well:true},
+    {t:'say', who:'', text:'그 밤. 언덕 아래에서 길고 낮은 울음이 들렸다.\n잿빛 이리 — 「잿송곳니」.\n이번 놈은, 화덕의 불빛을 노리고 있었다.'},
+    {t:'say', who:'PC', text:'저 문턱은 못 넘는다.\n저 안에서, 내 사람이 자고 있으니까.', think:true},
+    {t:'battle', player:'ember', enemy:'ashfang'},
+    {t:'say', who:'', text:'빛의 재가 마당에 눈처럼 쌓였다.\n문이 삐걱 열리고 — 담요를 두른 말썽쟁이가 뛰쳐나왔다.'},
+    {t:'say', who:T, text: K?'…너 진짜, 나 지키는 게 취미냐.\n…다친 덴? 불꽃도 다치냐? 어디 보자.':'엠버!! 방금 그 빛 뭐야, 너 싸운 거야?!\n다친 데 없어?! 불꽃도 다쳐?! 어디 봐봐!!'},
+    {t:'say', who:'PC', text:'다치지 않는다, 불꽃은.\n…그래도, 걱정해주는 목소리는 — 나쁘지 않다.', think:true},
+    {t:'say', who:'', text:'잿밤의 파수는 그렇게 끝났다.\n언덕의 불은, 오늘도 꺼지지 않았다.'},
+
+    /* ============ 3챕터: 은빛 씨앗 ============ */
+    {t:'say', who:'', text:'— 2챕터 끝. 3챕터 「은빛 씨앗」 —', toast:'3챕터 시작!'},
+    {t:'bg', sky:'sky-day', well:true},
+    {t:'stage', chars:[{id: K?'kaidel':'aria', pos:'center', breathe:true}]},
+    {t:'say', who:T, text: K?'시장 다녀오다 주웠다. 잿송곳니가 있던 자리에서.\n…네가 좋아할 것 같아서.':'엠버, 이거 봐!! 잿송곳니 있던 자리에서 주웠어!\n반짝반짝하지? 너 주려고 가져왔어!'},
+    {t:'say', who:'', text:'은빛 씨앗이었다.\n내 불빛에 닿자, 씨앗이 심장처럼 맥동했다.'},
+    {t:'choice', prompt:'씨앗을 심을 자리는—', options:[
+      {label:'화덕 곁 — 내 온기가 늘 닿는 곳', eff:[{k:'care',d:1},{k:'kind',d:1}], toast:T+'와의 정 +1', goto:'c3s_plant'},
+      {label:'우물가 — 물과 해가 있는 곳', eff:[{k:'care',d:1},{k:'practical',d:1}], toast:T+'와의 정 +1', goto:'c3s_plant'}]},
+    {t:'label', name:'c3s_plant'},
+    {t:'say', who:'', text:'흙을 덮은 순간 — 은빛 빛기둥이 하늘로 솟았다.\n씨앗은 순식간에 어른 키만 한 어린 나무가 되었다.', toast:'정령수(精靈樹) 묘목이 자라났다!'},
+    {t:'say', who:'', text:'그리고 — 나무가, 나에게 말을 걸었다.'},
+    {t:'say', who:'정령수', text:'…오랜 파수꾼이여.\n홀로 지킨 세월이, 이 땅의 심지가 되었구나.'},
+    {t:'say', who:'PC', text:'심지…? 내가, 이 언덕의?', think:true},
+    {t:'say', who:T, text: K?'뭐야, 나무가 빛나는데.\n…너랑 얘기 중이냐, 엠버?':'우와아, 나무가 엠버한테 인사해!!\n역시 내 정령이 최고라니까!'},
+    {t:'bg', sky:'sky-night', stars:true, embers:true, well:true},
+    {t:'say', who:'', text:'그날 밤. 정령수의 은빛이 크게 흔들렸다.\n잿빛 안개 한가운데 — 하얀 가면의 그림자.\n오염체들의 수괴, 「잿가면」.'},
+    {t:'say', who:'PC', text:'물러나 있어, 말썽쟁이.\n이 나무도, 너도 — 오늘 밤 내가 지킨다.', think:true},
+    {t:'battle', player:'ember', enemy:'ashmask'},
+    {t:'say', who:'', text:'잿가면은 부서지며 — 처음으로, 목소리를 남겼다.\n「…따뜻, 하구나. 이 언덕은…」'},
+    {t:'input', prompt:'정령수 아래. 잎이 빛나며 묻는다 — 작은 불꽃의 소원은?', spirit:true},
+    {t:'say', who:T, text: K?'…소원 빌었냐? 나도 빌었다.\n…내용은 비밀이다. 다만 — 너 관련이다, 엠버.':'나도 소원 빌었어!\n…뭐냐고? 헤헤, 비밀! …엠버 관련이라는 것만.'},
+    {t:'say', who:'PC', text:'수백 년의 파수 끝에, 나는 알게 됐다.\n지키는 불은 — 지켜주는 이가 곁에 있을 때,\n가장 밝게 탄다는 걸.', think:true},
+    {t:'end'}
+  ];
+}
+
+/* ---------- 상태/메타 ---------- */
+const State = {
+  i:0, speed:28, autoWait:2600,
+  pc:null, bonds:{}, traits:{kind:0, practical:0}, log:[]
+};
+const BONDMAX = 8;
+const PCMETA = {
+  her:{name:'레이나', c:'pc-her'},
+  him:{name:'리안', c:'pc-him'},
+  spirit:{name:'엠버', c:'pc-spirit'}
+};
+const CHAR_META = {
+  popo:{n:'포포', c:'#ff8a3d', e:'🔥', nb:'popo'},
+  aria:{n:'아리아', c:'#3fae93', e:'🍃', nb:'aria'},
+  kaidel:{n:'카이델', c:'#8fa8dd', e:'⚡', nb:'kaidel'},
+  viola:{n:'비올라', c:'#7fc4e8', e:'💧', nb:'viola'}
+};
+const BATTLE_META = {
+  popo:{name:'포포', sprite:'popo', atk:'불티 던지기', heal:'따뜻한 숨결', ult:'불꽃 만개'},
+  ember:{name:'엠버', sprite:'ember', atk:'불씨 튕기기', heal:'잉걸불 숨결', ult:'화덕의 기억'}
+};
+const ENEMY_META = {
+  smog:{name:'그을음', sprite:'smog', hp:36, atk:[4,7], php:34, healChance:.22, doubleChance:0,
+    sub:'정령 고갈이 남긴 오염체를 정화하자',
+    novel:'작은 불꽃이 크게 부풀어, 어둠을 향해 몸을 던졌다. 불티가 별처럼 쏟아지고 — 그을음은 비명도 없이, 빛의 재가 되어 흩어졌다. 첫 정화전이었다.'},
+  ashfang:{name:'잿송곳니', sprite:'ashfang', hp:52, atk:[5,9], php:42, healChance:.1, doubleChance:.25,
+    sub:'언덕을 노리는 잿빛 이리를 막아내자',
+    novel:'잿빛 이리가 송곳니를 드러내며 덮쳐 왔다. 그러나 언덕의 불꽃은 물러서지 않았다. 몇 번을 부딪히고, 몇 번을 다시 타오르고 — 마침내 잿송곳니는 긴 울음을 남기고 빛의 재가 되어 흩어졌다.'},
+  ashmask:{name:'잿가면', sprite:'ashmask', hp:64, atk:[6,10], php:46, healChance:.15, doubleChance:.2,
+    sub:'정령수를 노리는 오염체의 수괴를 막아내자',
+    novel:'하얀 가면의 수괴가 정령수 앞을 막아선 불꽃과 부딪혔다. 길고 치열한 밤이었다. 마침내 가면에 금이 가고 — 「…따뜻, 하구나」라는 마지막 말과 함께, 잿가면은 빛의 재가 되어 흩어졌다.'}
+};
+
+const $ = s => document.querySelector(s);
+let SCRIPT=[], labelMap={};
+let typing=false, typeTimer=null, autoTimer=null, curNode=null, slots={};
+
+/* ---------- 영구 저장소 (배포판: 브라우저 로컬 저장 / 미지원 환경: 세션 저장) ---------- */
+const Store = {
+  ok:(()=>{ try{ const k='__hg_test'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return true; }catch(e){ return false; } })(),
+  get(k,d){ if(!this.ok) return d; try{ const v=localStorage.getItem(k); return v!=null?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ if(!this.ok) return; try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
+slots = Store.get('hg_slots', {});
+function persistSlots(){ Store.set('hg_slots', slots); }
+
+/* 정식 아트 교체 슬롯 — art/ 폴더에 그림 파일을 넣고 아래에 경로만 적으면
+   해당 캐릭터가 SVG 대신 그 그림으로 표시됩니다. (아트제작킷.md 참고)
+   예: aria:'art/aria.png', popo:'art/popo.png' */
+const ART_OVERRIDES = {};
+function spriteHTML(id, cls){
+  const src = ART_OVERRIDES[id];
+  if(src) return '<img src="'+src+'" style="width:100%;display:block" alt="">';
+  return SPRITES[id] ? SPRITES[id](cls||'') : '';
+}
+
+function buildScript(pc){
+  if(pc.mode==='spirit'){ SCRIPT = spiritScript(pc.target); }
+  else { SCRIPT = humanScript(); }
+  labelMap={};
+  SCRIPT.forEach((n,idx)=>{ if(n.t==='label') labelMap[n.name]=idx; });
+}
+function freshBonds(pc){
+  return pc.mode==='spirit' ? {care:0} : {popo:0, aria:0, kaidel:0, viola:0};
+}
+
+/* ---------- 게임 ---------- */
+const Game = {
+  auto:false, skip:false,
+  show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on')); $('#'+id).classList.add('on'); },
+  openSelect(){ $('#spirit-sub').classList.remove('on'); $('#card-spirit').classList.remove('sel'); this.show('select'); },
+  pickSpirit(){ $('#spirit-sub').classList.toggle('on'); $('#card-spirit').classList.toggle('sel'); },
+
+  begin(mode, target){
+    State.pc = {mode, target: target||null, ...PCMETA[mode]};
+    State.i=0; State.traits={kind:0,practical:0}; State.log=[]; State.route=null;
+    State.bonds = freshBonds(State.pc);
+    buildScript(State.pc);
+    this.show('game'); buildBonds(); this.step();
+  },
+
+  step(){
+    clearTimeout(autoTimer);
+    if(State.i>=SCRIPT.length) return this.ending();
+    const node = SCRIPT[State.i];
+    if(!node){ State.i++; return this.step(); }
+    switch(node.t){
+      case 'label': State.i++; return this.step();
+      case 'goto': State.i = (labelMap[node.to]!=null?labelMap[node.to]:State.i+1); return this.step();
+      case 'bg': setBG(node); State.i++; return this.step();
+      case 'stage': setStage(node.chars); State.i++; return this.step();
+      case 'battle': return Battle.start(node, ()=>{ State.i++; Game.saveAuto(); Game.step(); });
+      case 'jumproute': State.i = labelMap[node.map[State.route]] != null ? labelMap[node.map[State.route]] : (labelMap[node.fallback]!=null?labelMap[node.fallback]:State.i+1); return this.step();
+      case 'end': return this.ending();
+      case 'choice': return this.renderChoice(node);
+      case 'input': return this.renderInput(node);
+      case 'say': return this.renderSay(node);
+      default: State.i++; return this.step();
+    }
+  },
+
+  renderSay(node){
+    curNode=node;
+    $('#choices').classList.remove('on');
+    const box=$('#namebox'), dlg=$('#dialogue');
+    const isPC = node.who==='PC';
+    const whoName = isPC ? State.pc.name : node.who;
+    dlg.classList.toggle('narration', !node.who);
+    dlg.classList.toggle('think', !!node.think);
+    if(node.who){
+      box.textContent = whoName + (node.think?' (마음속)':'');
+      const id = nameToId(node.who);
+      box.dataset.c = isPC ? State.pc.c : (id && CHAR_META[id] ? CHAR_META[id].nb : 'etc');
+      box.classList.add('on');
+    } else box.classList.remove('on');
+    highlightSpeaker(node.who);
+    State.log.push({who:whoName||'', text:node.text, think:node.think});
+    typeText(node.text, ()=>{ if(node.toast) toast(node.toast); this.armNext(); });
+  },
+
+  armNext(){
+    $('#next-ind').style.opacity=.9;
+    if(this.auto || this.skip){
+      autoTimer=setTimeout(()=>this.advance(), this.skip?90:State.autoWait);
+    }
+  },
+  advance(){
+    if($('#battle').classList.contains('on')) return;
+    if(typing){ finishTyping(); return; }
+    setTalking(false);
+    State.i++; this.step();
+  },
+
+  /* ---- 자유 대사 입력 ---- */
+  renderInput(node){
+    setTalking(false); clearTimeout(autoTimer);
+    this._inputNode = node;
+    $('#input-prompt').textContent = node.prompt || '한마디 —';
+    $('#free-text').value='';
+    $('#ov-input').classList.add('on');
+    setTimeout(()=>{ try{ $('#free-text').focus(); }catch(e){} }, 250);
+  },
+  submitInput(silent){
+    const node=this._inputNode; if(!node) return;
+    const raw = silent ? '' : $('#free-text').value;
+    $('#ov-input').classList.remove('on');
+    const spirit = !!node.spirit || State.pc.mode==='spirit';
+    const result = transformLine(raw, spirit);
+    /* 감정 분석 → 정/성향 반영 */
+    if(result.warm){
+      State.traits.kind+=1;
+      Object.keys(State.bonds).forEach(k=>State.bonds[k]=Math.min(BONDMAX,(State.bonds[k]||0)+1));
+      updateBonds();
+    } else if(result.pragmatic){
+      State.traits.practical+=1;
+    }
+    this._inputNode=null;
+    /* 다듬어진 대사를 그 자리에서 PC의 대사로 연출 (소설 로그에도 포함) */
+    this.renderSay({who:'PC', text:result.text, toast: raw.trim() ? '당신의 말이 세계관의 결로 다듬어졌다 ✦' : null});
+  },
+
+  renderChoice(node){
+    setTalking(false);
+    const c=$('#choices'); c.innerHTML='';
+    if(node.prompt){ const p=document.createElement('div'); p.style.cssText='color:var(--ink);font-weight:800;margin-bottom:6px;text-align:center;font-size:16px'; p.textContent=node.prompt; c.appendChild(p); }
+    node.options.forEach(opt=>{
+      const b=document.createElement('button'); b.className='choice'; b.textContent=opt.label;
+      b.onclick=()=>{
+        if(opt.route) State.route=opt.route;
+        (opt.eff||[]).forEach(e=>{
+          if(e.k in State.bonds){ State.bonds[e.k]=Math.min(BONDMAX, State.bonds[e.k]+e.d); }
+          if(e.k in State.traits){ State.traits[e.k]+=e.d; }
+        });
+        updateBonds();
+        if(opt.toast) toast(opt.toast);
+        c.classList.remove('on');
+        State.i = (opt.goto!=null && labelMap[opt.goto]!=null) ? labelMap[opt.goto] : State.i+1;
+        Game.saveAuto();
+        Game.step();
+      };
+      c.appendChild(b);
+    });
+    c.classList.add('on');
+  },
+
+  ending(){
+    setTalking(false);
+    const kind=State.traits.kind, prac=State.traits.practical;
+    const warm = kind>=prac;
+    const mode=State.pc.mode;
+    let line='';
+    if(mode==='spirit'){
+      const tn = CHAR_META[State.pc.target].n;
+      const isK = State.pc.target==='kaidel';
+      if(isK){
+        line = warm
+          ? '이름 없는 불씨는 「엠버」가 되었고, 앓아누운 카이델의 머리맡을 밤새 지켰다. 잿송곳니가 문턱을 넘보던 밤 — 불꽃은 물러서지 않았다. "너 진짜, 나 지키는 게 취미냐." 무뚝뚝한 목소리가, 세상에서 제일 따뜻한 답례였다.'
+          : '무심한 척 방 안 공기만 데웠다. 무심한 척 잿송곳니 앞을 막아섰다. …무심한 게 하나도 없었다는 걸, 담요를 두르고 뛰쳐나온 카이델의 얼굴을 보고서야 알았다. — 이 언덕의 불은, 꺼지지 않는다.';
+      } else {
+        line = warm
+          ? '이름 없는 불씨는 「엠버」가 되었고, 열에 들뜬 아리아의 물수건을 온종일 데웠다. "엠버 목소리, 꿈에서도 들려." 그 잠꼬대 하나로, 수백 년의 고요가 전부 녹았다. 잿송곳니도 그 온기는 이기지 못했다.'
+          : '효율적으로 돌봤을 뿐이다. 공기를 데우고, 이리를 쫓았을 뿐이다. …그런데 "다친 데 없어?!" 하고 달려온 아리아 앞에서, 불꽃이 저 혼자 크게 흔들렸다. — 이 언덕의 불은, 꺼지지 않는다.';
+      }
+    } else {
+      const R = State.route;
+      if(R==='aria'){
+        line = warm
+          ? '달빛 풀밭에서, 아리아의 바람이 처음으로 대답했다. "네가 있어서 좋은 거야" — 그 말이 소환진보다 강한 주문이었다는 걸, 새로 태어난 바람 정령 「솔」이 증명해주었다. 잿송곳니의 밤도, 둘이라서 두렵지 않았다.'
+          : '쓸모를 세어주는 위로도 위로였다. 장작 패기, 물 긷기, 아침 깨우기 — 목록이 길어질수록 아리아의 웃음도 길어졌고, 그 끝에서 바람 정령 「솔」이 깨어났다. …장부에 없는 온기가, 또 쌓였다.';
+      } else if(R==='kaidel'){
+        line = warm
+          ? '화덕가에서, 녹슨 맹세가 다시 벼려졌다. "지금 지키고 있잖아, 이 언덕에서." 그 한마디에 카이델은 칼 대신 불빛을 바라보았다. 잿송곳니가 온 밤 — 그의 검과 포포의 불꽃은, 같은 것을 지키고 있었다.'
+          : '"그 창고 얼마짜리였는데?" 웃자고 한 말에 카이델은 정말로 웃었다. 심각해지려야 심각해질 수 없는 영주 곁에서, 수배 전단의 사고뭉치는 오랜만에 — 잠든 칼처럼 편안해 보였다.';
+      } else if(R==='viola'){
+        line = warm
+          ? '우물 아래, 십이 년의 고요가 끝났다. "등불은 여럿일수록 밝으니까." 비올라는 웃는 법을 다시 떠올렸고, 등불을 들고 지상으로 올라왔다. 잿송곳니의 밤 — 언덕의 불빛은 그 어느 때보다 밝았다.'
+          : '"십이 년 치 급여, 소급 지급하죠." 그 무뚝뚝한 말에 십이 년 만의 웃음이 터졌다. 지키는 사람을 지키는 방법이 꼭 다정한 말일 필요는 없었다 — 비올라의 등불이 언덕 위에서 흔들리고 있다.';
+      } else {
+        line = '우물이 돌아왔고, 식구가 늘었고, 두 번의 정화전을 치렀다. 조용히 살긴 글렀지만 — 이 언덕이라면, 뭐가 와도 괜찮을 것 같다.';
+      }
+      line += ' 그리고 언덕 한가운데엔 이제, 은빛으로 빛나는 정령수가 서 있다. 잎사귀에 빌어둔 소원은 — 이미 뿌리에 닿았다.';
+    }
+    if(mode==='spirit'){ line += ' 정령수는 오랜 파수꾼을 「이 땅의 심지」라 불렀다. 그 이름의 뜻은, 다음 이야기에서.'; }
+    $('#end-title').textContent='3챕터 · 끝';
+    $('#end-text').textContent=line;
+    const stats=$('#end-stats'); stats.innerHTML='';
+    bondList().forEach(([k,meta])=>{
+      const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:10px;font-size:14px';
+      row.innerHTML=`<span style="width:118px">${meta.e} ${meta.n}와의 정</span>
+        <span style="flex:1;height:8px;background:rgba(255,255,255,.12);border-radius:8px;overflow:hidden">
+        <i style="display:block;height:100%;border-radius:8px;width:${(State.bonds[k]||0)/BONDMAX*100}%;background:${meta.c}"></i></span>`;
+      stats.appendChild(row);
+    });
+    const dom = kind>prac?'다정형':(prac>kind?'실리형':'균형형');
+    const tline=document.createElement('div'); tline.style.cssText='display:flex;align-items:center;gap:10px;font-size:14px';
+    tline.innerHTML=`<span style="width:118px">🧭 성향</span><span style="color:var(--gold);font-weight:800">${dom}</span>`;
+    stats.appendChild(tline);
+    Novel.compose();   /* 이번 플레이를 소설 회차로 자동 집필 */
+    this.show('ending'); makeEmbers('end-embers',18);
+  },
+
+  toggleAuto(){ this.auto=!this.auto; $('#btn-auto').classList.toggle('active',this.auto); if(this.auto&&!typing) this.armNext(); },
+  toggleSkip(){ this.skip=!this.skip; $('#btn-skip').classList.toggle('active',this.skip); if(this.skip){ if(typing) finishTyping(); this.armNext(); } },
+  setSpeed(v,el){ State.speed=v; segPick('seg-speed',el); Store.set('hg_set',{speed:State.speed,autoWait:State.autoWait}); },
+  setAutoWait(v,el){ State.autoWait=v; segPick('seg-auto',el); Store.set('hg_set',{speed:State.speed,autoWait:State.autoWait}); },
+
+  openLog(){ const b=$('#log-body'); b.innerHTML='';
+    State.log.forEach(l=>{ const d=document.createElement('div');
+      d.className='log-line'+(l.who?'':' narr');
+      d.innerHTML=(l.who?`<span class="who">${escapeHtml(l.who)}</span>`:'')+escapeHtml(l.text).replace(/\n/g,'<br>');
+      b.appendChild(d); });
+    $('#ov-log').classList.add('on'); b.scrollTop=b.scrollHeight; },
+  openMenu(){ $('#ov-menu').classList.add('on'); },
+  openLoad(){ const b=$('#save-body'); b.innerHTML='';
+    [['auto','⚡ 자동 저장'],[1,'슬롯 1'],[2,'슬롯 2'],[3,'슬롯 3']].forEach(([n,label])=>{
+      const s=slots[n];
+      const d=document.createElement('div'); d.className='slot';
+      d.innerHTML=`<span class="s-i">${label}</span><span class="s-d">${s?(s.pcName+' · 진행 '+s.i+' · '+s.stamp):'— 비어 있음 —'}</span>`;
+      d.onclick=()=> s ? Game.loadFrom(n) : (n!=='auto' && State.pc ? Game.saveTo(n) : toast(n==='auto'?'선택지를 고르면 자동 저장돼요':'먼저 게임을 시작하세요'));
+      b.appendChild(d); });
+    const note=document.querySelector('#ov-save p.t-tag');
+    if(note) note.textContent = Store.ok
+      ? '※ 이 기기에 영구 저장됩니다. 같은 브라우저로 다시 접속하면 이어할 수 있어요.'
+      : '※ 이 미리보기 환경에선 임시 저장입니다. 게임 주소(배포판)에서는 영구 저장돼요.';
+    this.closeOverlays(); $('#ov-save').classList.add('on'); },
+  _snapshot(){ return {i:State.i, pc:{...State.pc}, pcName:State.pc.name, route:State.route||null, bonds:{...State.bonds}, traits:{...State.traits}, log:[...State.log], stamp:nowStamp()}; },
+  saveTo(n){ if(!State.pc){ toast('먼저 게임을 시작하세요'); return; }
+    slots[n]=this._snapshot(); persistSlots();
+    toast('슬롯 '+n+' 저장 완료'); this.closeOverlays(); },
+  saveAuto(){ if(!State.pc) return; slots['auto']=this._snapshot(); persistSlots(); },
+
+  /* 파일 백업/복원 — 다른 기기·다른 주소로 옮길 때 */
+  exportSave(){
+    const data = { hg_version:'0.5', exported:nowStamp(), slots:slots, episodes:EPISODES };
+    const header = '=== 정령이 머무는 언덕 · 세이브 백업 ===\n'
+      + '(이 파일을 「파일에서 불러오기」로 올리면 세이브·소설 회차가 그대로 복원됩니다)\n'
+      + '아래 --- SAVE-DATA --- 이후 줄은 지우지 마세요.\n\n--- SAVE-DATA ---\n';
+    const blob = new Blob([header + JSON.stringify(data)], {type:'text/plain;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `hearthgrove_save_${new Date().toISOString().slice(0,10)}.txt`;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 400);
+    toast('세이브 백업 파일이 저장됐어요!');
+  },
+  importSave(file){
+    if(!file){ return; }
+    const rd = new FileReader();
+    rd.onload = e=>{
+      try{
+        const raw = String(e.target.result||'');
+        const marker = raw.lastIndexOf('--- SAVE-DATA ---');
+        const jsonStr = (marker>=0 ? raw.slice(marker + 17) : raw).trim();
+        const data = JSON.parse(jsonStr);
+        if(!data || typeof data!=='object') throw new Error('형식이 달라요');
+        if(data.slots){ slots = Object.assign({}, slots, data.slots); persistSlots(); }
+        if(Array.isArray(data.episodes)){
+          const seen = new Set(EPISODES.map(e=>e.stamp+'|'+e.no+'|'+e.title));
+          data.episodes.forEach(ep=>{ const k=ep.stamp+'|'+ep.no+'|'+ep.title; if(!seen.has(k)){ EPISODES.push(ep); seen.add(k); } });
+          EPISODES.forEach((ep,idx)=>{ ep.no = idx+1; });
+          Store.set('hg_eps', EPISODES);
+        }
+        toast('불러오기 완료! 슬롯을 확인하세요');
+        Game.openLoad();
+      }catch(err){
+        toast('파일을 읽을 수 없어요. 세이브 백업 파일이 맞는지 확인해주세요');
+      }
+    };
+    rd.readAsText(file);
+    document.getElementById('save-import').value='';
+  },
+  loadFrom(n){ const s=slots[n]; if(!s) return;
+    State.pc={...s.pc}; buildScript(State.pc);
+    State.i=s.i; State.route=s.route||null; State.bonds={...s.bonds}; State.traits={...s.traits}; State.log=[...s.log];
+    this.closeOverlays(); this.show('game'); buildBonds(); updateBonds(); this.step(); },
+  closeOverlays(){ document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('on')); }
+};
+
+/* ---------- SD 전투 ---------- */
+const Battle = {
+  busy:false, onWin:null, revived:false,
+  p:{}, e:{},
+  start(node, onWin){
+    this.onWin=onWin; this.revived=false; this.busy=false;
+    const meta = BATTLE_META[node.player];
+    const em = ENEMY_META[node.enemy||'smog'];
+    this.p = {hp:em.php, max:em.php, atkName:meta.atk, healName:meta.heal, ultName:meta.ult, name:meta.name, charge:0};
+    this.e = {hp:em.hp, max:em.hp, name:em.name, meta:em};
+    $('#b-title').textContent = '정화전 — '+em.name;
+    document.querySelector('.b-head .b-sub').textContent = em.sub;
+    $('#b-pname').textContent = meta.name;
+    $('#b-ename').textContent = em.name;
+    $('#atk-name').textContent = meta.atk;
+    $('#heal-name').textContent = meta.heal;
+    $('#ult-name').textContent = meta.ult;
+    $('#b-psprite').innerHTML = spriteHTML(meta.sprite,'');
+    $('#b-esprite').innerHTML = spriteHTML(em.sprite,'');
+    startBlink($('#b-psprite')); startBlink($('#b-esprite'));
+    this.log('오염체 「'+em.name+'」이 나타났다!');
+    this.refresh();
+    $('#battle').classList.add('on');
+  },
+  refresh(){
+    $('#b-php').style.width=(this.p.hp/this.p.max*100)+'%';
+    $('#b-ehp').style.width=(this.e.hp/this.e.max*100)+'%';
+    $('#b-php-t').textContent=this.p.hp+'/'+this.p.max;
+    $('#b-ehp-t').textContent=this.e.hp+'/'+this.e.max;
+    const pips=$('#ult-pips').children;
+    for(let i=0;i<3;i++) pips[i].classList.toggle('on', i<this.p.charge);
+    $('#act-ult').disabled = this.p.charge<3 || this.busy;
+    $('#act-atk').disabled = this.busy;
+    $('#act-heal').disabled = this.busy;
+  },
+  log(msg){ $('#b-log').textContent=msg; },
+  sparks(unitSel, n=7){
+    const host=$(unitSel); const r=host.getBoundingClientRect(); const app=$('#app').getBoundingClientRect();
+    for(let i=0;i<n;i++){
+      const s=document.createElement('span'); s.className='b-spark';
+      s.style.left=(r.left-app.left+r.width*0.5+(Math.random()*40-20))+'px';
+      s.style.top=(r.top-app.top+r.height*0.55+(Math.random()*30-15))+'px';
+      s.style.setProperty('--dx',(Math.random()*60-30)+'px');
+      s.style.setProperty('--dy',(Math.random()*-50-8)+'px');
+      $('#battle').appendChild(s);
+      setTimeout(()=>s.remove(),600);
+    }
+  },
+  async playerAct(kind){
+    if(this.busy) return; this.busy=true; this.refresh();
+    const P=this.p, E=this.e;
+    if(kind==='atk'){
+      $('#b-player').classList.add('lunge-p');
+      setTimeout(()=>$('#b-player').classList.remove('lunge-p'),360);
+      await wait(200);
+      const dmg = 7+Math.floor(Math.random()*5);
+      E.hp=Math.max(0,E.hp-dmg); P.charge=Math.min(3,P.charge+1);
+      $('#b-enemy').classList.add('shake'); setTimeout(()=>$('#b-enemy').classList.remove('shake'),320);
+      this.sparks('#b-enemy');
+      this.log(P.name+'의 '+P.atkName+'! '+dmg+'의 정화!');
+    } else if(kind==='heal'){
+      const amt = 8+Math.floor(Math.random()*4);
+      P.hp=Math.min(P.max,P.hp+amt); P.charge=Math.min(3,P.charge+1);
+      this.sparks('#b-player');
+      this.log(P.name+'의 '+P.healName+'. 기력 +'+amt);
+    } else if(kind==='ult'){
+      $('#b-player').classList.add('lunge-p');
+      setTimeout(()=>$('#b-player').classList.remove('lunge-p'),360);
+      await wait(200);
+      const dmg = 16+Math.floor(Math.random()*6);
+      E.hp=Math.max(0,E.hp-dmg); P.charge=0;
+      $('#b-enemy').classList.add('shake'); setTimeout(()=>$('#b-enemy').classList.remove('shake'),320);
+      this.sparks('#b-enemy',14);
+      this.log('✦ '+P.ultName+'!! '+dmg+'의 대정화!!');
+    }
+    this.refresh();
+    if(E.hp<=0) return this.win();
+    await wait(820);
+    /* 적 턴 */
+    const em=E.meta;
+    if(Math.random()<em.healChance){
+      this.log(E.name+'은(는) 재를 웅크려 모으고 있다…');
+      E.hp=Math.min(E.max,E.hp+3);
+    } else {
+      $('#b-enemy').classList.add('lunge-e');
+      setTimeout(()=>$('#b-enemy').classList.remove('lunge-e'),360);
+      await wait(200);
+      const hits = (Math.random()<em.doubleChance) ? 2 : 1;
+      let total=0;
+      for(let h=0;h<hits;h++){ total += em.atk[0]+Math.floor(Math.random()*(em.atk[1]-em.atk[0]+1)); }
+      P.hp=Math.max(0,P.hp-total);
+      $('#b-player').classList.add('shake'); setTimeout(()=>$('#b-player').classList.remove('shake'),320);
+      this.log(hits===2 ? E.name+'의 연속 할퀴기…! '+total+'의 피해!' : E.name+'의 재 뿌리기… '+total+'의 피해.');
+    }
+    this.refresh();
+    if(P.hp<=0){
+      if(!this.revived){
+        this.revived=true;
+        await wait(700);
+        this.log('따뜻한 목소리가 들렸다 — 「아직이야. 일어나.」');
+        this.sparks('#b-player',12);
+        P.hp=Math.floor(P.max*0.6);
+        this.refresh();
+      } else {
+        await wait(700);
+        this.log('…불씨는 꺼지지 않는다. 다시!');
+        P.hp=Math.floor(P.max*0.5); this.refresh();
+      }
+    }
+    await wait(500);
+    this.busy=false; this.refresh();
+  },
+  async win(){
+    this.log(this.e.name+'이(가) 빛의 재가 되어 흩어진다…!');
+    $('#b-esprite').parentElement.classList.add('fade-out');
+    this.sparks('#b-enemy',16);
+    /* 소설 변환용 전투 기록 */
+    State.log.push({who:'', text:this.e.meta.novel, battle:true});
+    await wait(1100);
+    $('#battle').classList.remove('on');
+    $('#b-esprite').parentElement.classList.remove('fade-out');
+    toast('정화 완료! ✦');
+    const cb=this.onWin; this.onWin=null;
+    cb && cb();
+  }
+};
+$('#act-atk').onclick=()=>Battle.playerAct('atk');
+$('#act-heal').onclick=()=>Battle.playerAct('heal');
+$('#act-ult').onclick=()=>Battle.playerAct('ult');
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+/* ---------- 연출 공통 ---------- */
+function typeText(str, done){
+  const el=$('#text'); el.textContent=''; typing=true; $('#next-ind').style.opacity=0;
+  setTalking(true);
+  let k=0; clearInterval(typeTimer);
+  const spd = Game.skip?4:State.speed;
+  typeTimer=setInterval(()=>{
+    el.textContent=str.slice(0,++k);
+    if(k>=str.length){ clearInterval(typeTimer); typing=false; setTalking(false); done&&done(); }
+  }, spd);
+}
+function finishTyping(){ clearInterval(typeTimer); if(curNode){ $('#text').textContent=curNode.text; } typing=false; setTalking(false); $('#next-ind').style.opacity=.9; }
+function setTalking(on){ document.querySelectorAll('#stage .char').forEach(c=>c.classList.toggle('talking', on && c.dataset.speaking==='1')); }
+
+function setBG(node){
+  const bg=$('#bg'); bg.innerHTML='';
+  const sky=document.createElement('div'); sky.className='layer '+(node.sky||'sky-dusk'); bg.appendChild(sky);
+  if(node.stars){ const s=document.createElement('div'); s.className='layer stars'; bg.appendChild(s); }
+  const ground=document.createElement('div'); ground.className='layer '+(node.stalls?'stalls':'hill'); bg.appendChild(ground);
+  if(node.well){ bg.appendChild(makeWell()); }
+  const haze=document.createElement('div'); haze.className='layer haze'; bg.appendChild(haze);
+  const vig=document.createElement('div'); vig.className='layer vignette'; bg.appendChild(vig);
+  const eg=$('#game-embers'); eg.classList.toggle('hidden', !node.embers);
+  if(node.embers && !eg.dataset.built){ makeEmbers('game-embers',16); eg.dataset.built='1'; }
+}
+function makeWell(){
+  const w=document.createElement('div'); w.className='well';
+  w.innerHTML=`<svg viewBox="0 0 150 120" width="150"><g fill="#2b1f30" stroke="#3d2c44" stroke-width="2">
+    <path d="M35 118 L45 70 H105 L115 118Z" opacity=".95"/>
+    <ellipse cx="75" cy="70" rx="30" ry="8" fill="#1c1424"/>
+    <path d="M48 70 L52 40 M102 70 L98 40" stroke="#3d2c44" stroke-width="4"/>
+    <path d="M46 40 H104 L96 30 H54Z"/></g></svg>`;
+  return w;
+}
+function setStage(chars){
+  const stage=$('#stage'); stage.innerHTML='';
+  (chars||[]).forEach(ch=>{
+    const wrap=document.createElement('div'); wrap.className='char '+(ch.pos||'center')+' show'+(ch.float?' float':'')+(ch.breathe?' breathe':'');
+    if(ch.scale) wrap.style.cssText+=ch.scale;
+    wrap.dataset.id=ch.id;
+    wrap.innerHTML = spriteHTML(ch.id,'');
+    stage.appendChild(wrap);
+    startBlink(wrap);
+  });
+}
+function nameToId(who){ for(const k in CHAR_META){ if(CHAR_META[k].n===who) return k; } return null; }
+function highlightSpeaker(who){
+  const id=nameToId(who);
+  document.querySelectorAll('#stage .char').forEach(c=>{
+    const isSpk = id && c.dataset.id===id;
+    c.dataset.speaking = isSpk?'1':'0';
+    c.classList.toggle('dim', !!id && !isSpk);
+  });
+}
+function startBlink(wrap){
+  const svg=wrap.querySelector('.char-svg') || wrap;
+  const blink=()=>{ if(!document.body.contains(svg)) return;
+    svg.classList&&svg.classList.add('eyes-shut'); setTimeout(()=>svg.classList&&svg.classList.remove('eyes-shut'),110);
+    setTimeout(blink, 2400+Math.random()*2600); };
+  setTimeout(blink, 1200+Math.random()*1800);
+}
+
+/* ---------- 정 미터 ---------- */
+function bondList(){
+  if(!State.pc) return [];
+  if(State.pc.mode==='spirit'){ const m=CHAR_META[State.pc.target]; return [['care',m]]; }
+  return [['popo',CHAR_META.popo],['aria',CHAR_META.aria],['kaidel',CHAR_META.kaidel],['viola',CHAR_META.viola]];
+}
+function buildBonds(){
+  const box=$('#bonds'); box.innerHTML='';
+  bondList().forEach(([k,m])=>{
+    const el=document.createElement('div'); el.className='bond'; el.id='bond-'+k;
+    el.innerHTML=`<span class="dot" style="background:${m.c}22">${m.e}</span>
+       <div><div class="lbl">${m.n}</div><div class="meter"><i class="fill" style="background:${m.c}"></i></div></div>`;
+    box.appendChild(el);
+  });
+  updateBonds();
+}
+function updateBonds(){
+  bondList().forEach(([k])=>{
+    const el=$('#bond-'+k); if(!el) return;
+    const v=State.bonds[k]||0;
+    el.classList.toggle('on', v>0);
+    el.querySelector('.fill').style.width=(v/BONDMAX*100)+'%';
+  });
+}
+
+/* ---------- 유틸 ---------- */
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),1500); }
+function segPick(id,el){ document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.remove('on')); el.classList.add('on'); }
+function escapeHtml(s){ return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function nowStamp(){ const d=new Date(); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+function makeEmbers(id,count){ const box=document.getElementById(id); if(!box) return;
+  for(let n=0;n<count;n++){ const e=document.createElement('span'); e.className='ember';
+    e.style.left=(Math.random()*100)+'%'; e.style.bottom=(-10-Math.random()*20)+'%';
+    e.style.animationDuration=(7+Math.random()*7)+'s'; e.style.animationDelay=(-Math.random()*8)+'s';
+    e.style.transform='scale('+(0.5+Math.random())+')'; box.appendChild(e); } }
+
+/* ---------- 세계관 대사 변환기 ----------
+   플레이어의 자유 입력을 아르베인 세계관의 결로 다듬는다.
+   (데모: 규칙 기반. 정식판: 서버 AI 변환으로 승급 예정 — 같은 인터페이스) */
+function transformLine(raw, spiritMode){
+  let s=(raw||'').trim().slice(0,80);
+  const warmRe=/고마|고맙|좋아|좋다|사랑|아껴|귀엽|예쁘|이쁘|멋지|함께|같이|우리|지켜|지킬|괜찮|다행|힘내|행복|따뜻|잘 살|잘살|웃|반가|최고|덕분/;
+  const pragRe=/돈|은화|계산|성과|장부|일당|밥값|공짜|손해|이득|거래|계약/;
+  const warm = warmRe.test(s), pragmatic = pragRe.test(s);
+  if(!s){
+    /* 침묵 선택 */
+    return { text: spiritMode ? '…포포. (작은 불꽃이 천천히, 크게 한 번 흔들렸다)' : '…나는 말없이, 잔 대신 든 물그릇을 들어 보였다. 그거면 충분했다.',
+             warm:true, pragmatic:false };
+  }
+  /* 1) 현대어·인터넷어 → 세계관 어휘 */
+  const rep=[
+    [/ㅇㅋ/g,'좋다 '],[/ㄱㄱ/g,'가자 '],[/ㅇㅇ/g,'그래 '],[/ㄴㄴ/g,'아니 '],[/ㄳ|ㄱㅅ/g,'고맙다 '],
+    [/ㅋ+/g,' 후후'],[/ㅎ+/g,' 후후'],[/ㅠ+|ㅜ+/g,''],[/ㄹㅇ|레알/g,'정말'],[/개(?=[가-힣])/g,'참으로 '],
+    [/핸드폰|스마트폰|휴대폰|폰/g,'전서 수정구'],[/게임/g,'모험'],[/컴퓨터/g,'마도 기관'],
+    [/오케이|OK|ok|옼케/g,'좋다'],[/헐|대박|미쳤다|미쳤어/g,'세상에'],[/짱|캡/g,'참으로'],
+    [/빵/g,'화덕빵'],[/치킨/g,'구운 새'],[/커피/g,'볶은 콩물'],
+    [/안녕(하세요)?/g,'반갑다'],[/바이|빠이/g,'무운을'],
+    [/고마워요?|감사(합니다|해요?)?/g,'고맙다'],[/미안(해요?|합니다)?/g,'미안하구나'],
+    [/힘내자?/g,'버텨내자'],[/파이팅|화이팅/g,'무운을 빈다']
+  ];
+  rep.forEach(([a,b])=>{ s=s.replace(a,b); });
+  s=s.replace(/[!]{2,}/g,'!').replace(/[?]{2,}/g,'?').replace(/\s+/g,' ').trim();
+  /* 2) 어미 다듬기(가볍게) */
+  s=s.replace(/할게요?([.!?…]|$)/g,'하마$1')
+     .replace(/해줘([.!?…]|$)/g,'해 다오$1')
+     .replace(/줘([.!?…]|$)/g,'다오$1')
+     .replace(/이야([.!?…]|$)/g,'이다$1')
+     .replace(/거야([.!?…]|$)/g,'거다$1')
+     .replace(/하자!*([.!?…]|$)/g,'하자꾸나$1');
+  if(!/[.!?…]$/.test(s)) s+='.';
+  /* 3) 시점별 마감 */
+  if(spiritMode){
+    /* 서툰 정령의 말: 뜻은 전해지지만, 소리는 불꽃 */
+    return { text:'…'+s.replace(/[.]/g,'…')+'\n(작은 불꽃이 파륵, 파륵 — 뜻은 분명히 전해졌다)', warm, pragmatic };
+  }
+  return { text:s, warm, pragmatic };
+}
+
+/* ---------- 소설 연재 엔진 ----------
+   플레이 로그 → 웹소설 회차 원고 변환.
+   - 나레이션: 문단
+   - 대사: "…" + ―화자 표기(화자 바뀔 때)
+   - 독백: '…' (속마음)
+   - 선택 결과(정·성향)는 회차 후기로.
+   데모는 세션 보관(EPISODES), TXT 다운로드로 영구 저장. */
+let EPISODES = Store.get('hg_eps', []);
+const Novel = {
+  compose(){
+    if(!State.pc) return null;
+    const mode=State.pc.mode;
+    const epNo = EPISODES.length+1;
+    const ROUTE_TITLES = {aria:'바람의 약속', kaidel:'녹슨 맹세', viola:'물빛 등불'};
+    const chapTitle = mode==='spirit' ? '잿밤의 파수' : (ROUTE_TITLES[State.route] || '언덕의 밤들');
+    const povName = State.pc.name;
+    const povTag = mode==='spirit' ? '케어 정령 엠버 시점' : (mode==='her'?'여주인공 레이나 시점':'남주인공 리안 시점');
+    let out = `『정령이 머무는 언덕』\n제${epNo}화 — ${chapTitle}\n(${povTag})\n\n`;
+    let prevWho=null;
+    State.log.forEach(l=>{
+      const txt=(l.text||'').trim();
+      if(!txt) return;
+      if(txt.startsWith('— 프롤로그') || txt.startsWith('— ')) { out+='\n　　＊　　＊　　＊\n\n'; prevWho=null; return; }
+      if(!l.who){
+        out += txt.replace(/\n/g,' ') + '\n\n'; prevWho=null;
+      } else if(l.think){
+        out += `‘${txt.replace(/\n/g,' ')}’\n\n`; prevWho=null;
+      } else {
+        const line = `“${txt.replace(/\n/g,' ')}”`;
+        if(l.who!==prevWho){ out += line + `\n―${l.who}\n\n`; }
+        else { out += line + '\n\n'; }
+        prevWho=l.who;
+      }
+    });
+    const kind=State.traits.kind, prac=State.traits.practical;
+    const dom = kind>prac?'다정형':(prac>kind?'실리형':'균형형');
+    out += '\n─────────────\n[작가의 말]\n';
+    out += `이번 회차의 ${povName}은(는) ${dom}의 길을 걸었습니다. `;
+    const bl = bondList().map(([k,m])=>`${m.n} ${'♥'.repeat(Math.max(1,Math.round((State.bonds[k]||0)/2)))}`).join(' · ');
+    out += `쌓인 정 — ${bl}\n다음 화에 계속.\n`;
+    const ep = {no:epNo, title:chapTitle, pov:povTag, name:povName, text:out, stamp:nowStamp()};
+    EPISODES.push(ep);
+    Store.set('hg_eps', EPISODES);
+    return ep;
+  },
+  openLatest(){
+    const ep = EPISODES[EPISODES.length-1] || this.compose();
+    if(!ep){ toast('아직 집필된 회차가 없어요'); return; }
+    this.show(ep);
+  },
+  show(ep){
+    this._cur = ep;
+    $('#novel-title').textContent = `제${ep.no}화 — ${ep.title}`;
+    $('#novel-body').textContent = ep.text;
+    Game.closeOverlays();
+    $('#ov-novel').classList.add('on');
+    $('#ov-novel .ov-body').scrollTop=0;
+  },
+  openShelf(){
+    const b=$('#shelf-body'); b.innerHTML='';
+    if(!EPISODES.length){
+      b.innerHTML='<p style="text-align:center;color:var(--ink-dim);margin-top:40px">아직 집필된 회차가 없어요.<br>게임을 한 번 플레이하면 자동으로 소설이 쌓입니다.</p>';
+    } else {
+      EPISODES.forEach(ep=>{
+        const d=document.createElement('div'); d.className='slot';
+        d.innerHTML=`<span class="s-i">제${ep.no}화</span><span>${ep.title} <small style="color:var(--ink-dim)">· ${ep.pov}</small></span><span class="s-d">${ep.stamp}</span>`;
+        d.onclick=()=>Novel.show(ep);
+        b.appendChild(d);
+      });
+    }
+    Game.closeOverlays();
+    $('#ov-shelf').classList.add('on');
+  },
+  copy(){
+    const ep=this._cur; if(!ep) return;
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(ep.text).then(()=>toast('원고 복사 완료!'),()=>this._fallbackCopy(ep));
+    } else this._fallbackCopy(ep);
+  },
+  _fallbackCopy(ep){
+    const ta=document.createElement('textarea'); ta.value=ep.text; document.body.appendChild(ta);
+    ta.select(); try{ document.execCommand('copy'); toast('원고 복사 완료!'); }catch(e){ toast('복사 실패 — TXT 저장을 이용하세요'); }
+    ta.remove();
+  },
+  download(){
+    const ep=this._cur; if(!ep) return;
+    const blob=new Blob([ep.text],{type:'text/plain;charset=utf-8'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`정령이_머무는_언덕_제${ep.no}화_${ep.name}.txt`;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },400);
+    toast('TXT 저장!');
+  }
+};
+
+/* ---------- 입력/초기화 ---------- */
+$('#tapzone').addEventListener('click', ()=>{ if(!$('#choices').classList.contains('on')) Game.advance(); });
+/* 저장된 설정 복원 */
+(function initSettings(){
+  const s=Store.get('hg_set',null); if(!s) return;
+  if(s.speed) State.speed=s.speed;
+  if(s.autoWait) State.autoWait=s.autoWait;
+  document.querySelectorAll('#seg-speed button').forEach(b=>{
+    b.classList.toggle('on', (b.getAttribute('onclick')||'').includes('('+State.speed+','));
+  });
+  document.querySelectorAll('#seg-auto button').forEach(b=>{
+    b.classList.toggle('on', (b.getAttribute('onclick')||'').includes('('+State.autoWait+','));
+  });
+})();
+makeEmbers('title-embers',16);
+$('#title-spirit').innerHTML=SPRITES.popo('float');
+startBlink($('#title-spirit'));
+</script>
+</body>
+</html>
