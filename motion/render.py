@@ -113,8 +113,8 @@ LYRICS = (block([24.5, 31.3, 38.3, 45.3, 52.0], V1, 'VERSE  I') +
           block([52.3, 58.8, 65.2, 71.6, 77.8], CH, 'CHORUS') +
           block([82.4, 88.8, 95.2, 101.6, 108.0], V2, 'VERSE  II') +
           [(113.0, 123.3, '어둠을 뚫고 솟구치는|백두의 기상이어라', 'BRIDGE')] +
-          block([123.5, 130.8, 138.1, 145.4, 152.8], CH, 'CHORUS') +
-          block([157.0, 163.9, 170.6, 177.3, 183.8], CH, 'CHORUS'))
+          block([125.0, 132.3, 139.6, 146.9, 154.3], CH, 'CHORUS') +
+          block([158.5, 165.4, 172.1, 178.8, 185.3], CH, 'CHORUS'))
 
 # ---------------------------------------------------------------- text sprites
 def text_sprite(text, size, font=FONT_B, spacing=0, color=(245, 238, 225), glow=(255, 200, 120), glow_r=14, glow_a=0.9):
@@ -169,6 +169,8 @@ def init_text():
     TITLE['l1'] = text_sprite('달빛 아래', 96, FONT_B, spacing=18, glow_r=22)
     TITLE['l2'] = text_sprite('경복궁 회랑의 거문고', 78, FONT_B, spacing=10, glow_r=20)
     TITLE['sub'] = text_sprite('MOONLIT GEOMUNGO  ·  NEO-GUGAK', 26, FONT_R, spacing=8, color=(230, 200, 140), glow_r=8, glow_a=0.5)
+    TITLE['cr1'] = text_sprite('제 작', 34, FONT_R, spacing=10, color=(230, 200, 140), glow_r=8, glow_a=0.5)
+    TITLE['cr2'] = text_sprite('Free', 92, FONT_B, spacing=12, glow_r=20)
     TITLE['small'] = text_sprite('달빛 아래 경복궁 회랑의 거문고', 30, FONT_R, spacing=4, color=(235, 225, 205), glow_r=8, glow_a=0.4)
 
 # ---------------------------------------------------------------- particles
@@ -312,13 +314,24 @@ def render(fi, kick, en):
         blit(frame, TITLE['l1'], W / 2, 1180 + rise, a, wipe=ease((t - 2.0) / 3.0), ramp=300)
         blit(frame, TITLE['l2'], W / 2, 1310 + rise, a, wipe=ease((t - 3.2) / 3.0), ramp=300)
         blit(frame, TITLE['sub'], W / 2, 1430, a * ease((t - 5.0) / 2.0))
-    elif t >= 184.3:
-        a = ease((t - 184.3) / 1.2) * (1 - ease((t - 187.0) / 1.0))
+        ca = a * ease((t - 6.0) / 1.5)
+        blit(frame, TITLE['cr1'], W / 2, 1540, ca)
+        blit(frame, TITLE['cr2'], W / 2, 1625, ca, wipe=ease((t - 6.2) / 1.4), ramp=200)
+    elif t >= 185.4:
+        a = ease((t - 185.4) / 0.6) * (1 - ease((t - 187.4) / 0.6))
         blit(frame, TITLE['l1'], W / 2, 1180, a)
         blit(frame, TITLE['l2'], W / 2, 1310, a)
-    else:
-        sa = ease((t - 16.0) / 2.0) * (1 - ease((t - 183.5) / 1.0))
+    if t >= 184.3:  # closing production credit
+        ca = ease((t - 184.3) / 0.8)
+        blit(frame, TITLE['cr1'], W / 2, 1540, ca)
+        blit(frame, TITLE['cr2'], W / 2, 1625, ca, wipe=ease((t - 184.4) / 1.0), ramp=200)
+    if 15.6 <= t < 185.4:
+        sa = ease((t - 16.0) / 2.0) * (1 - ease((t - 184.4) / 1.0))
         blit(frame, TITLE['small'], W / 2, 150, 0.75 * sa)
+    if 78.2 <= t < 81.6:  # production credit over the moon interlude
+        a = ease((t - 78.2) / 0.6) * (1 - ease((t - 80.9) / 0.6))
+        blit(frame, TITLE['cr1'], W / 2, 1500, a)
+        blit(frame, TITLE['cr2'], W / 2, 1590 - 10 * ease((t - 78.2) / 3.0), a, wipe=ease((t - 78.4) / 1.2), ramp=200)
     for (t0, t1, txt, lab), rows in zip(LYRICS, LY_SP):
         if t0 - 0.1 <= t < t1 + 0.1:
             fin = ease((t - t0) / 0.5); fout = 1 - ease((t - (t1 - 0.55)) / 0.55)
@@ -334,7 +347,7 @@ def render(fi, kick, en):
     # grain + fades
     g = cv2.resize(GRAIN[fi % 6], (W, H), interpolation=cv2.INTER_NEAREST)[..., None]
     frame += g
-    fade = ease(t / 1.2) * (1 - ease((t - 186.6) / 1.4))
+    fade = ease(t / 1.2) * (1 - ease((t - 187.2) / 0.8))
     frame *= fade
     return (np.clip(frame, 0, 1) * 255).astype(np.uint8)
 
